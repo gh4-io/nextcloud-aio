@@ -1,0 +1,15 @@
+name: nextcloud-aio-chart
+description: A generated Helm Chart for Nextcloud AIO
+version: 0.0.1
+apiVersion: v2
+keywords:
+  - latest
+  - nextcloud
+  - helm-chart
+  - open-source
+  - cloud
+sources:
+  - https://github.com/nextcloud/all-in-one/tree/main/nextcloud-aio-helm-chart
+home: https://github.com/nextcloud/all-in-one/tree/main/nextcloud-aio-helm-chart
+icon: chttps://raw.githubusercontent.com/nextcloud/server/master/core/img/logo/logo.png
+
