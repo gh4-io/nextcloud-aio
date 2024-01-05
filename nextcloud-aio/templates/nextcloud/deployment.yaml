@@ -1,0 +1,199 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.nextcloud.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud
+    app.kubernetes.io/component: server
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+  name: {{ include "nextcloud-aio.nextcloud.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+spec:
+  replicas: {{ .Values.nextcloud.replicaCount }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.nextcloud.podLabels .Values.commonLabels $versionLabel ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.nextcloud.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.nextcloud.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/component: server
+    spec:
+      initContainers:
+        - name: "delete-lost-found"
+          image: alpine
+          command:
+            - rm
+            - "-rf"
+            - "/nextcloud-aio-nextcloud/lost+found"
+          volumeMounts:
+            - name: nextcloud-aio-nextcloud-trusted-cacerts
+              mountPath: /nextcloud-aio-nextcloud-trusted-cacerts
+            - name: nextcloud-aio-nextcloud
+              mountPath: /nextcloud-aio-nextcloud
+        - name: init-volumes
+          image: alpine
+          command:
+            - chmod
+            - "777"
+            - /nextcloud-aio-nextcloud
+            - /nextcloud-aio-nextcloud-trusted-cacerts
+          volumeMounts:
+            - name: nextcloud-aio-nextcloud-trusted-cacerts
+              mountPath: /nextcloud-aio-nextcloud-trusted-cacerts
+            - name: nextcloud-aio-nextcloud
+              mountPath: /nextcloud-aio-nextcloud
+      containers:
+        - env:
+            - name: SMTP_HOST
+              value: "{{ .Values.nextcloud.mail.stmp.host }}"
+            - name: SMTP_SECURE
+              value: "{{ .Values.nextcloud.mail.stmp.secure }}"
+            - name: SMTP_PORT
+              value: "{{ .Values.nextcloud.mail.stmp.port }}"
+            - name: SMTP_AUTHTYPE
+              value: "{{ .Values.nextcloud.mail.stmp.authType }}"
+            - name: SMTP_NAME
+              value: "{{ .Values.nextcloud.mail.stmp.name }}"
+            - name: SMTP_PASSWORD
+              value: "{{ .Values.nextcloud.mail.stmp.password }}"
+            - name: MAIL_FROM_ADDRESS
+              value: "{{ .Values.nextcloud.mail.sender }}"
+            - name: MAIL_DOMAIN
+              value: "{{ .Values.nextcloud.mail.domain }}"
+            - name: SUBSCRIPTION_KEY
+              value: "{{ .Values.subscriptionKey }}"
+            - name: APPS_ALLOWLIST
+              value: "{{ .Values.appsAllowed }}"
+            - name: ADDITIONAL_TRUSTED_PROXY
+              value: "{{ .Values.additionalTrustedProxy }}"
+            - name: SERVERINFO_TOKEN
+              value: "{{ .Values.nextcloud.token }}"
+            - name: ADDITIONAL_APKS
+              value: "{{ .Values.additionalAPKS }}"
+            - name: ADDITIONAL_PHP_EXTENSIONS
+              value: "{{ .Values.additionalPHPExtensions }}"
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.nextcloud.secretName" . | quote }}
+                  key: {{ include "nextcloud-aio.nextcloud.passwordKey" . | quote }}
+            - name: ADMIN_USER
+              value: "{{ .Values.nextcloud.auth.user }}"
+            - name: APACHE_PORT
+              value: "{{ .Values.web.service.ports.https }}"
+            - name: CLAMAV_ENABLED
+              value: {{ include "nextcloud-aio.clamav.enabled" . }}
+            - name: CLAMAV_HOST
+              value: {{ include "nextcloud-aio.clamav.fullname" . }}
+            - name: COLLABORA_ENABLED
+              value: {{ include "nextcloud-aio.collabora.enabled" . }}
+            - name: COLLABORA_HOST
+              value: {{ include "nextcloud-aio.collabora.fullname" . }}
+            - name: FULLTEXTSEARCH_ENABLED
+              value: {{ include "nextcloud-aio.fullTextSearch.enabled" . }}
+            - name: FULLTEXTSEARCH_HOST
+              value: {{ include "nextcloud-aio.fullTextSearch.fullname" . }}
+            - name: FULLTEXTSEARCH_PASSWORD
+              value: "{{ .Values.fullTextSearch.auth.password }}"
+            - name: IMAGINARY_ENABLED
+              value: {{ include "nextcloud-aio.imaginary.enabled" . }}
+            - name: IMAGINARY_HOST
+              value: nextcloud-aio-imaginary
+            - name: INSTALL_LATEST_MAJOR
+              value: {{ if .Values.nextcloud.enableMajor -}}{{- print "yes" | quote }}{{- else }}{{- print "no" | quote }}{{- end }}
+            - name: NC_DOMAIN
+              value: "{{ .Values.nextcloud.domain }}"
+            - name: NEXTCLOUD_DATA_DIR
+              value: /mnt/ncdata
+            - name: ONLYOFFICE_ENABLED
+              value: {{ include "nextcloud-aio.onlyOffice.enabled" . }}
+            - name: ONLYOFFICE_HOST
+              value: nextcloud-aio-onlyoffice
+            - name: ONLYOFFICE_SECRET
+              value: {{ .Values.onlyOffice.auth.password }}
+            - name: OVERWRITEHOST
+              value: {{ .Values.nextcloud.domain }}
+            - name: OVERWRITEPROTOCOL
+              value: https
+            - name: PHP_MAX_TIME
+              value: {{ .Values.nextcloud.php.time }}
+            - name: PHP_MEMORY_LIMIT
+              value: {{ .Values.nextcloud.php.memory }}
+            - name: PHP_UPLOAD_LIMIT
+              value: {{ .Values.nextcloud.php.upload }}
+            - name: POSTGRES_DB
+              value: nextcloud_database
+            - name: POSTGRES_HOST
+              value: {{ include "nextcloud-aio.db.fullname" . }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.db.auth.password }}
+            - name: POSTGRES_USER
+              value: {{ .Values.db.auth.user }}
+            - name: RECORDING_SECRET
+              value: {{ .Values.talk.auth.recording }}
+            - name: REDIS_HOST
+              value: {{ include "nextcloud-aio.redis.fullname" . }}
+            - name: REDIS_HOST_PASSWORD
+              value: {{ .Values.redis.auth.password }}
+            - name: REMOVE_DISABLED_APPS
+              value: {{ include "nextcloud-aio.removeDisabledApps" . }}
+            - name: SIGNALING_SECRET 
+              value: {{ .Values.talk.auth.signaling }}
+            - name: STARTUP_APPS
+              value: {{ .Values.startupApps }}
+            - name: TALK_ENABLED
+              value: {{ include "nextcloud-aio.talk.enabled" . }}
+            - name: TALK_PORT
+              value: {{ .Values.talk.service.port }}
+            - name: TALK_RECORDING_ENABLED
+              value: {{ include "nextcloud-aio.recording.enabled" . }}
+            - name: TALK_RECORDING_HOST
+              value: {{ include "nextcloud-aio.recording.fullname" . }}
+            - name: TRUSTED_CACERTS_DIR
+              value: {{ .Values.trustedCAcertDir }}
+            - name: TURN_SECRET
+              value: "{{ .Values.talk.auth.turn }}"
+            - name: TZ
+              value: "{{ include "nextcloud-aio.timezone" . }}"
+            - name: UPDATE_NEXTCLOUD_APPS
+              value: {{ include "nextcloud-aio.updateAppsOnStartup" . }}
+          image: {{ template "nextcloud-aio.nextcloud.image" . }}
+          imagePullPolicy: {{ .Values.nextcloud.image.pullPolicy }}
+          name: nextcloud-aio
+          ports:
+            - name: http
+              containerPort: {{ .Values.nextcloud.containerPorts.http }}
+              protocol: TCP
+            - name: https
+              containerPort: {{ .Values.nextcloud.containerPorts.https }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: nextcloud-aio-nextcloud
+            - mountPath: /mnt/ncdata
+              name: nextcloud-aio-nextcloud-data
+            - mountPath: /usr/local/share/ca-certificates
+              name: nextcloud-aio-nextcloud-trusted-cacerts
+              readOnly: true
+      terminationGracePeriodSeconds: 600
+      volumes:
+        - name: nextcloud-aio-nextcloud
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-nextcloud
+        - name: nextcloud-aio-nextcloud-data
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-nextcloud-data
+        - name: nextcloud-aio-nextcloud-trusted-cacerts
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-nextcloud-trusted-cacerts
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}

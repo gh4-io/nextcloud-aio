@@ -1,0 +1,31 @@
+{{- if .Values.db.dumpStorage.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-aio-database-dump
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.db.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-database
+    app.kubernetes.io/component: dump-pvc
+  {{- if or .Values.db.dumpStorage.persistence.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.db.dumpStorage.persistence.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+  {{- range .Values.db.dumpStorage.persistence.accessModes }}
+    - {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.db.dumpStorage.persistence.size }}
+  {{- if .Values.db.dumpStorage.persistence.selector }}
+  selector: {{- include "common.tplvalues.render" (dict "value" .Values.db.dumpStorage.persistence.selector "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if .Values.db.dumpStorage.persistence.dataSource }}
+  dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.db.dumpStorage.persistence.dataSource "context" $) | nindent 4 }}
+  {{- end }}
+  {{- include "common.storage.class" (dict "persistence" .Values.db.dumpStorage.persistence "global" .Values.global) | nindent 2 }}
+{{- end -}}

@@ -1,0 +1,64 @@
+{{- if .Values.nextcloud.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "nextcloud-aio.nextcloud.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.nextcloud.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio
+    app.kubernetes.io/component: nextcloud-svc
+  {{- if or .Values.nextcloud.service.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.nextcloud.service.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.nextcloud.service.type }}
+  {{- if and .Values.nextcloud.service.clusterIP (eq .Values.nextcloud.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.nextcloud.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.nextcloud.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.nextcloud.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.nextcloud.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.nextcloud.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if or (eq .Values.nextcloud.service.type "LoadBalancer") (eq .Values.nextcloud.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.nextcloud.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if and (eq .Values.nextcloud.service.type "LoadBalancer") (not (empty .Values.nextcloud.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.nextcloud.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and (eq .Values.nextcloud.service.type "LoadBalancer") (not (empty .Values.nextcloud.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.nextcloud.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: http
+      port: {{ .Values.nextcloud.service.ports.http }}
+      protocol: TCP
+      {{- if and (or (eq .Values.nextcloud.service.type "NodePort") (eq .Values.nextcloud.service.type "LoadBalancer")) (not (empty .Values.nextcloud.service.nodePorts.http)) }}
+      nodePort: {{ .Values.nextcloud.service.nodePorts.http }}
+      targetPort: http
+      {{- else if eq .Values.nextcloud.service.type "ClusterIP" }}
+      nodePort: null
+      targetPort: {{ .Values.nextcloud.containerPorts.http }}
+      {{- end }}
+    - name: https
+      port: {{ .Values.nextcloud.service.ports.https }}
+      protocol: TCP
+      {{- if and (or (eq .Values.nextcloud.service.type "NodePort") (eq .Values.nextcloud.service.type "LoadBalancer")) (not (empty .Values.nextcloud.service.nodePorts.https)) }}
+      nodePort: {{ .Values.nextcloud.service.nodePorts.https }}
+      targetPort: https
+      {{- else if eq .Values.nextcloud.service.type "ClusterIP" }}
+      nodePort: null
+      targetPort: {{ .Values.nextcloud.containerPorts.https }}
+      {{- end }}
+    {{- if .Values.nextcloud.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.nextcloud.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.nextcloud.podLabels .Values.commonLabels ) "context" . ) }}
+  selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-nextcloud
+    app.kubernetes.io/component: server
+{{- end -}}

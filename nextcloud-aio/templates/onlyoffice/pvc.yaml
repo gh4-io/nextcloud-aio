@@ -1,0 +1,31 @@
+{{- if and .Values.onlyOffice.enabled .Values.onlyOffice.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-aio-onlyoffice
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.onlyOffice.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-onlyoffice
+    app.kubernetes.io/component: pvc
+  {{- if or .Values.onlyOffice.persistence.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.onlyOffice.persistence.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+  {{- range .Values.onlyOffice.persistence.accessModes }}
+    - {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.onlyOffice.persistence.size }}
+  {{- if .Values.onlyOffice.persistence.selector }}
+  selector: {{- include "common.tplvalues.render" (dict "value" .Values.onlyOffice.persistence.selector "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if .Values.onlyOffice.persistence.dataSource }}
+  dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.onlyOffice.persistence.dataSource "context" $) | nindent 4 }}
+  {{- end }}
+  {{- include "common.storage.class" (dict "persistence" .Values.onlyOffice.persistence "global" .Values.global) | nindent 2 }}
+{{- end -}}

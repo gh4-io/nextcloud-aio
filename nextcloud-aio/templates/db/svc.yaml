@@ -1,0 +1,56 @@
+{{- if .Values.db.enabled }}
+{{- if .Values.db.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "nextcloud-aio.db.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.db.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio
+    app.kubernetes.io/component: db-svc
+  {{- if or .Values.db.service.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.db.service.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.db.service.type }}
+  {{- if and .Values.db.service.clusterIP (eq .Values.db.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.db.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.db.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.db.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.db.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.db.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if or (eq .Values.db.service.type "LoadBalancer") (eq .Values.db.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.db.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if and (eq .Values.db.service.type "LoadBalancer") (not (empty .Values.db.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.db.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and (eq .Values.db.service.type "LoadBalancer") (not (empty .Values.db.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.db.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: postgres
+      port: {{ .Values.db.service.ports.postgres }}
+      protocol: TCP
+      {{- if and (or (eq .Values.db.service.type "NodePort") (eq .Values.db.service.type "LoadBalancer")) (not (empty .Values.db.service.nodePorts.postgres)) }}
+      nodePort: {{ .Values.db.service.nodePorts.postgres }}
+      targetPort: db
+      {{- else if eq .Values.db.service.type "ClusterIP" }}
+      nodePort: null
+      targetPort: {{ .Values.db.containerPorts.postgres }}
+      {{- end }}
+    {{- if .Values.db.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.db.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.db.podLabels .Values.commonLabels ) "context" . ) }}
+  selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-db
+    app.kubernetes.io/component: server
+{{- end -}}
+{{- end -}}

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nextcloud-aio.web.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio
+    app.kubernetes.io/component: cache-server
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.redis.podLabels .Values.commonLabels ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/component: cache-server
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.redis.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.redis.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/component: cache-server
+    spec:
+      initContainers:
+        - name: init-volumes
+          image: alpine
+          command:
+            - chmod
+            - "777"
+            - /nextcloud-aio-redis
+          volumeMounts:
+            - name: nextcloud-aio-redis
+              mountPath: /nextcloud-aio-redis
+      containers:
+        - env:
+            - name: REDIS_HOST_PASSWORD
+              value: "{{ .Values.redis.auth.password }}"
+            - name: TZ
+              value: "{{ include "nextcloud-aio.timezone" . }}"
+          image: {{ template "nextcloud-aio.redis.image" . }}
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          name: redis
+          ports:
+            - name: redis
+              containerPort: 6379
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data
+              name: nextcloud-aio-redis
+      volumes:
+        - name: nextcloud-aio-redis
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-redis
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}

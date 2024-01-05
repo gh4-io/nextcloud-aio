@@ -60,3 +60,47 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+
+{{/*
+Basic timezone
+*/}}
+{{- define "nextcloud-aio.timezone" -}}
+{{- if .Values.global.tz -}}
+{{ default "UTC" .Values.global.tz }}
+{{- else -}}
+"UTC"
+{{- end -}}
+{{- end -}}
+
+{{/*
+Update Apps On Startup
+When setting to yes (with quotes), it will 
+automatically update all installed Nextcloud apps 
+upon container startup on saturdays.
+*/}}
+{{- define "nextcloud-aio.updateAppsOnStartup" -}}
+{{- if .Values.updateAppsOnStartup -}}
+{{- if or ( eq .Values.updateAppsOnStartup "true" ) ( eq .Values.updateAppsOnStartup "yes" ) -}}
+"yes"
+{{- else -}}
+"no"
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Remove Disabled Apps
+Setting this to no keep Nextcloud apps that are disabled via their 
+switch and not uninstall them if they should be installed in Nextcloud.
+*/}}
+{{- define "nextcloud-aio.removeDisabledApps" -}}
+{{- if .Values.removeDisabledApps -}}
+{{- if or ( eq .Values.removeDisabledApps "true" ) ( eq .Values.removeDisabledApps "yes" ) -}}
+"yes"
+{{- else -}}
+"no"
+{{- end -}}
+{{- end -}}
+{{- end -}}
+

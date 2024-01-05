@@ -1,6 +1,12 @@
-name: nextcloud-aio-chart
+name: nextcloud-aio
 description: A generated Helm Chart for Nextcloud AIO
 version: 0.0.1
+annotations:
+  category: Infrastructure
+  licenses: Apache-2.0
+  images: |
+    - name: aio-nextcloud
+      image: nextcloud/aio-nextcloud:20231220_153200-latest
 apiVersion: v2
 keywords:
   - latest
@@ -12,4 +18,7 @@ sources:
   - https://github.com/nextcloud/all-in-one/tree/main/nextcloud-aio-helm-chart
 home: https://github.com/nextcloud/all-in-one/tree/main/nextcloud-aio-helm-chart
 icon: chttps://raw.githubusercontent.com/nextcloud/server/master/core/img/logo/logo.png
+dependencies:
+  - name: common
+    version: 2.x.x
 

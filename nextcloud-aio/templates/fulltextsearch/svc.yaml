@@ -1,0 +1,56 @@
+{{- if .Values.fullTextSearch.enabled }}
+{{- if .Values.fullTextSearch.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "nextcloud-aio.fullTextSearch.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.fullTextSearch.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio
+    app.kubernetes.io/component: fullTextSearch-svc
+  {{- if or .Values.fullTextSearch.service.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.fullTextSearch.service.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.fullTextSearch.service.type }}
+  {{- if and .Values.fullTextSearch.service.clusterIP (eq .Values.fullTextSearch.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.fullTextSearch.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.fullTextSearch.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.fullTextSearch.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.fullTextSearch.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.fullTextSearch.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if or (eq .Values.fullTextSearch.service.type "LoadBalancer") (eq .Values.fullTextSearch.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.fullTextSearch.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if and (eq .Values.fullTextSearch.service.type "LoadBalancer") (not (empty .Values.fullTextSearch.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.fullTextSearch.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and (eq .Values.fullTextSearch.service.type "LoadBalancer") (not (empty .Values.fullTextSearch.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.fullTextSearch.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: fullTextSearch
+      port: {{ .Values.fullTextSearch.service.ports.fullTextSearch }}
+      protocol: TCP
+      {{- if and (or (eq .Values.fullTextSearch.service.type "NodePort") (eq .Values.fullTextSearch.service.type "LoadBalancer")) (not (empty .Values.fullTextSearch.service.nodePorts.fullTextSearch)) }}
+      nodePort: {{ .Values.fullTextSearch.service.nodePorts.fullTextSearch }}
+      targetPort: fullTextSearch
+      {{- else if eq .Values.fullTextSearch.service.type "ClusterIP" }}
+      nodePort: null
+      targetPort: {{ .Values.fullTextSearch.containerPorts.fullTextSearch }}
+      {{- end }}
+    {{- if .Values.fullTextSearch.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.fullTextSearch.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.fullTextSearch.podLabels .Values.commonLabels ) "context" . ) }}
+  selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-fulltextsearch
+    app.kubernetes.io/component: server
+{{- end -}}
+{{- end -}}

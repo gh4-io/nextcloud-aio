@@ -1,0 +1,74 @@
+{{- if .Values.clamav.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.clamav.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-clamav
+    app.kubernetes.io/component: server
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+  name: {{ include "nextcloud-aio.clamav.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+spec:
+  replicas: {{ .Values.clamav.replicaCount }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.clamav.podLabels .Values.commonLabels $versionLabel ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.clamav.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.clamav.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/component: server
+    spec:
+      initContainers:
+        - name: init-subpath
+          image: alpine
+          command:
+            - mkdir
+            - "-p"
+            - /nextcloud-aio-clamav/data
+            - /nextcloud-aio-clamav
+          volumeMounts:
+            - name: nextcloud-aio-clamav
+              mountPath: /nextcloud-aio-clamav
+        - name: init-volumes
+          image: alpine
+          command:
+            - chown
+            - 100:100
+            - "-R"
+            - /nextcloud-aio-clamav
+          volumeMounts:
+            - name: nextcloud-aio-clamav
+              mountPath: /nextcloud-aio-clamav
+      containers:
+        - env:
+            - name: CLAMD_STARTUP_TIMEOUT
+              value: "90"
+            - name: TZ
+              value: "{{ include "nextcloud-aio.timezone" . }}"
+          image: {{ template "nextcloud-aio.nextcloud.image" . }}
+          name: clamav
+          ports:
+            - name: clamav
+              containerPort: {{ .Values.clamav.containerPorts.clamav }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/clamav
+              subPath: data
+              name: nextcloud-aio-clamav
+      volumes:
+        - name: nextcloud-aio-clamav
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-clamav
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+{{- end }}

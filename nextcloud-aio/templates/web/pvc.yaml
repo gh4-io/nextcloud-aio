@@ -1,0 +1,31 @@
+{{- if and .Values.web.enabled .Values.web.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-aio-web
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.web.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-web
+    app.kubernetes.io/component: pvc
+  {{- if or .Values.web.persistence.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.web.persistence.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+  {{- range .Values.web.persistence.accessModes }}
+    - {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.web.persistence.size }}
+  {{- if .Values.web.persistence.selector }}
+  selector: {{- include "common.tplvalues.render" (dict "value" .Values.web.persistence.selector "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if .Values.web.persistence.dataSource }}
+  dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.web.persistence.dataSource "context" $) | nindent 4 }}
+  {{- end }}
+  {{- include "common.storage.class" (dict "persistence" .Values.web.persistence "global" .Values.global) | nindent 2 }}
+{{- end -}}

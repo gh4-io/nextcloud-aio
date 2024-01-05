@@ -1,0 +1,55 @@
+{{- if .Values.talk.recording.enabled }}
+{{- if .Values.talk.recording.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "nextcloud-aio.recording.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.talk.recording.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio
+    app.kubernetes.io/component: recording-svc
+  {{- if or .Values.talk.recording.service.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.talk.recording.service.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.talk.recording.service.type }}
+  {{- if and .Values.talk.recording.service.clusterIP (eq .Values.talk.recording.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.talk.recording.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.talk.recording.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.talk.recording.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.talk.recording.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.talk.recording.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if or (eq .Values.talk.recording.service.type "LoadBalancer") (eq .Values.talk.recording.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.talk.recording.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if and (eq .Values.talk.recording.service.type "LoadBalancer") (not (empty .Values.talk.recording.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.talk.recording.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and (eq .Values.talk.recording.service.type "LoadBalancer") (not (empty .Values.talk.recording.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.talk.recording.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: recorder
+      port: {{ .Values.talk.recording.service.ports.recorder }}
+      protocol: TCP
+      {{- if and (or (eq .Values.talk.recording.service.type "NodePort") (eq .Values.talk.recording.service.type "LoadBalancer")) (not (empty .Values.talk.recording.service.nodePorts.http)) }}
+      nodePort: {{ .Values.talk.recording.service.nodePorts.recorder }}
+      targetPort: recorder
+      {{- else if eq .Values.talk.recording.service.type "ClusterIP" }}
+      nodePort: null
+      targetPort: {{ .Values.talk.recording.containerPorts.recorder }}
+      {{- end }}
+    {{- if .Values.talk.recording.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.talk.recording.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.talk.recording.podLabels .Values.commonLabels ) "context" . ) }}
+  selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/component: server
+{{- end -}}
+{{- end -}}

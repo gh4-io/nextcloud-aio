@@ -1,0 +1,70 @@
+{{ if .Values.notifyPush.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.notifyPush.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-notify
+    app.kubernetes.io/component: server
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+  name: {{ include "nextcloud-aio.notifyPush.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+spec:
+  replicas: {{ .Values.notifyPush.replicaCount }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.notifyPush.podLabels .Values.commonLabels $versionLabel ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    annotations:
+        {{- if .Values.notifyPush.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.notifyPush.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/component: server
+    spec:
+      initContainers:
+        - name: init-volumes
+          image: alpine
+          command:
+            - chmod
+            - "777"
+            - /nextcloud-aio-nextcloud
+          volumeMounts:
+            - name: nextcloud-aio-nextcloud
+              mountPath: /nextcloud-aio-nextcloud
+      containers:
+        - env:
+            - name: NC_DOMAIN
+              value: "{{ .Values.nextcloud.domain }}"
+            - name: NEXTCLOUD_HOST
+              value: {{ include "nextcloud-aio.nextcloud.fullname" . }}
+            - name: POSTGRES_DB
+              value: nextcloud_database
+            - name: POSTGRES_HOST
+              value: {{ include "nextcloud-aio.db.fullname" . }}
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.db.auth.password }}"
+            - name: POSTGRES_USER
+              value: {{ .Values.db.auth.user }}
+            - name: REDIS_HOST
+              value: {{ include "nextcloud-aio.redis.fullname" . }}
+            - name: REDIS_HOST_PASSWORD
+              value: "{{ .Values.redis.auth.password }}"
+          image: {{ template "nextcloud-aio.notifyPush.image" . }}
+          name: nextcloud-aio-notify-push
+          ports:
+            - containerPort: {{ .Values.notifyPush.containerPorts.notify }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /nextcloud
+              name: nextcloud-aio-nextcloud
+              readOnly: true
+      volumes:
+        - name: nextcloud-aio-nextcloud
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-nextcloud
+{{- end -}}

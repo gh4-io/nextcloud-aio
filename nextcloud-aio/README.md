@@ -1,0 +1,61 @@
+<!--- app-name: Nextcloud-AIO --->
+
+# Nextcloud AIO Helm-chart
+
+[Overview of Nextcloud-AIO]()
+
+## TL;DR
+
+## Introduction
+
+## Prerequsisites
+
+## Installing the Chart
+
+To install the chart with the release name `my-release`:
+
+```console
+helm install my-release oci://REGISTRY_NAME/REPOSITORY_NAME/nextcloud-aio
+```
+
+> Note: You need to substitute the placeholders `REGISTRY_NAME` and `REPOSITORY_NAME` with a reference to your Helm chart registry and repository. For example, in the case of Bitnami, you need to use `REGISTRY_NAME=registry-1.docker.io` and `REPOSITORY_NAME=bitnamicharts`.
+
+The command deploys Nextcloud-AIO on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
+
+> **Tip**: List all releases using `helm list`
+
+## Uninstalling the Chart
+
+To uninstall/delete the `my-release` deployment:
+
+```console
+helm delete my-release
+```
+
+The command removes all the Kubernetes components associated with the chart and deletes the release.
+
+## Parameters
+
+### Global parameters
+
+| Name                                  | Description                                                   | Value         |
+| ------------------------------------- | ------------------------------------------------------------- | ------------- |
+| `global.imageRegistry`                | Global Docker image registry                                  | `""`          |
+| `global.imagePullSecrets`             | Global Docker registry secret names as an array               | `[]`          |
+| `global.storageClass`                 | Global StorageClass for Persistent Volume(s)                  | `""`          |
+| `global.tz`                           | Global timezone setting. E.g. "UTC"                           | `""`          |
+
+
+### Common parameters
+
+| Name                                  | Description                                                   | Value         |
+| ------------------------------------- | ------------------------------------------------------------- | ------------- |
+|                                       |                                                               |               |
+
+## Troubleshooting
+
+...
+
+## Upgrading
+
+...

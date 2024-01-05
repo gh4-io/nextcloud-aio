@@ -1,0 +1,56 @@
+{{- if .Values.imaginary.enabled }}
+{{- if .Values.imaginary.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "nextcloud-aio.imaginary.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.imaginary.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio
+    app.kubernetes.io/component: imaginary-svc
+  {{- if or .Values.imaginary.service.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.imaginary.service.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.imaginary.service.type }}
+  {{- if and .Values.imaginary.service.clusterIP (eq .Values.imaginary.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.imaginary.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.imaginary.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.imaginary.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.imaginary.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.imaginary.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if or (eq .Values.imaginary.service.type "LoadBalancer") (eq .Values.imaginary.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.imaginary.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if and (eq .Values.imaginary.service.type "LoadBalancer") (not (empty .Values.imaginary.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.imaginary.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and (eq .Values.imaginary.service.type "LoadBalancer") (not (empty .Values.imaginary.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.imaginary.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: imaginary
+      port: {{ .Values.imaginary.service.ports.http }}
+      protocol: TCP
+      {{- if and (or (eq .Values.imaginary.service.type "NodePort") (eq .Values.imaginary.service.type "LoadBalancer")) (not (empty .Values.imaginary.service.nodePorts.http)) }}
+      nodePort: {{ .Values.imaginary.service.nodePorts.http }}
+      targetPort: imaginary
+      {{- else if eq .Values.imaginary.service.type "ClusterIP" }}
+      nodePort: null
+      targetPort: {{ .Values.imaginary.containerPorts.http }}
+      {{- end }}
+    {{- if .Values.imaginary.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.imaginary.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.imaginary.podLabels .Values.commonLabels ) "context" . ) }}
+  selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-imaginary
+    app.kubernetes.io/component: server
+{{- end -}}
+{{- end -}}

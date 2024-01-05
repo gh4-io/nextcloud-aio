@@ -1,0 +1,55 @@
+{{- if .Values.talk.enabled }}
+{{- if .Values.talk.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "nextcloud-aio.talk.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.talk.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio
+    app.kubernetes.io/component: talk-svc
+  {{- if or .Values.talk.service.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.talk.service.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.talk.service.type }}
+  {{- if and .Values.talk.service.clusterIP (eq .Values.talk.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.talk.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.talk.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.talk.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.talk.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.talk.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if or (eq .Values.talk.service.type "LoadBalancer") (eq .Values.talk.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.talk.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if and (eq .Values.talk.service.type "LoadBalancer") (not (empty .Values.talk.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.talk.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and (eq .Values.talk.service.type "LoadBalancer") (not (empty .Values.talk.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.talk.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: talk
+      port: {{ .Values.talk.service.ports.talk }}
+      protocol: TCP
+      {{- if and (or (eq .Values.talk.service.type "NodePort") (eq .Values.talk.service.type "LoadBalancer")) (not (empty .Values.talk.service.nodePorts.http)) }}
+      nodePort: {{ .Values.talk.service.nodePorts.talk }}
+      targetPort: talk
+      {{- else if eq .Values.talk.service.type "ClusterIP" }}
+      nodePort: null
+      targetPort: {{ .Values.talk.containerPorts.talk }}
+      {{- end }}
+    {{- if .Values.talk.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.talk.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.talk.podLabels .Values.commonLabels ) "context" . ) }}
+  selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/component: server
+{{- end -}}
+{{- end -}}

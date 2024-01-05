@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.db.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud
+    app.kubernetes.io/component: database
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+  name: {{ include "nextcloud-aio.db.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+spec:
+  replicas: {{ .Values.db.replicaCount }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.db.podLabels .Values.commonLabels $versionLabel ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.db.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.db.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/component: database
+    spec:
+      initContainers:
+        - name: init-subpath
+          image: alpine
+          command:
+            - mkdir
+            - "-p"
+            - /nextcloud-aio-database/data
+            - /nextcloud-aio-database
+            - /nextcloud-aio-database-dump
+          volumeMounts:
+            - name: nextcloud-aio-database-dump
+              mountPath: /nextcloud-aio-database-dump
+            - name: nextcloud-aio-database
+              mountPath: /nextcloud-aio-database
+        - name: init-volumes
+          image: alpine
+          command:
+            - chown
+            - 999:999
+            - "-R"
+            - /nextcloud-aio-database
+            - /nextcloud-aio-database-dump
+          volumeMounts:
+            - name: nextcloud-aio-database-dump
+              mountPath: /nextcloud-aio-database-dump
+            - name: nextcloud-aio-database
+              mountPath: /nextcloud-aio-database
+      containers:
+        - env:
+            - name: PGTZ
+              value: "{{ include "nextcloud-aio.timezone" . }}"
+            - name: POSTGRES_DB
+              value: {{ .Values.db.auth.database }}
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.db.auth.password }}"
+            - name: POSTGRES_USER
+              value: {{ .Values.db.auth.user }}
+            - name: TZ
+              value: "{{ include "nextcloud-aio.timezone" . }}"
+          image: {{ template "nextcloud-aio.db.image" . }}
+          imagePullPolicy: {{ .Values.db.image.pullPolicy }}
+          name: database
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.db.containerPorts.postgres }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              subPath: data
+              name: nextcloud-aio-database
+            - mountPath: /mnt/data
+              name: nextcloud-aio-database-dump
+      terminationGracePeriodSeconds: 1800
+      volumes:
+        - name: nextcloud-aio-database
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-database
+        - name: nextcloud-aio-database-dump
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-database-dump
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,56 @@
+{{- if .Values.notifyPush.enabled }}
+{{- if .Values.notifyPush.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "nextcloud-aio.notifyPush.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.notifyPush.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-notify-push
+    app.kubernetes.io/component: notify-svc
+  {{- if or .Values.notifyPush.service.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.notifyPush.service.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.notifyPush.service.type }}
+  {{- if and .Values.notifyPush.service.clusterIP (eq .Values.notifyPush.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.notifyPush.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.notifyPush.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.notifyPush.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.notifyPush.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.notifyPush.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if or (eq .Values.notifyPush.service.type "LoadBalancer") (eq .Values.notifyPush.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.notifyPush.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if and (eq .Values.notifyPush.service.type "LoadBalancer") (not (empty .Values.notifyPush.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.notifyPush.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and (eq .Values.notifyPush.service.type "LoadBalancer") (not (empty .Values.notifyPush.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.notifyPush.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: notify
+      port: {{ .Values.notifyPush.service.ports.notify }}
+      protocol: TCP
+      {{- if and (or (eq .Values.notifyPush.service.type "NodePort") (eq .Values.notifyPush.service.type "LoadBalancer")) (not (empty .Values.notifyPush.service.nodePorts.http)) }}
+      nodePort: {{ .Values.notifyPush.service.nodePorts.notify }}
+      targetPort: notify
+      {{- else if eq .Values.notifyPush.service.type "ClusterIP" }}
+      nodePort: null
+      targetPort: {{ .Values.notifyPush.containerPorts.notify }}
+      {{- end }}
+    {{- if .Values.notifyPush.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.notifyPush.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.notifyPush.podLabels .Values.commonLabels ) "context" . ) }}
+  selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-notify-push
+    app.kubernetes.io/component: server
+{{- end -}}
+{{- end -}}

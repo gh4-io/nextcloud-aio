@@ -1,0 +1,56 @@
+{{- if .Values.clamav.enabled }}
+{{- if .Values.clamav.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "nextcloud-aio.clamav.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.clamav.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio
+    app.kubernetes.io/component: clamav-svc
+  {{- if or .Values.clamav.service.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.clamav.service.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.clamav.service.type }}
+  {{- if and .Values.clamav.service.clusterIP (eq .Values.clamav.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.clamav.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.clamav.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.clamav.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.clamav.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.clamav.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if or (eq .Values.clamav.service.type "LoadBalancer") (eq .Values.clamav.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.clamav.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if and (eq .Values.clamav.service.type "LoadBalancer") (not (empty .Values.clamav.service.loadBalancerSourceRanges)) }}
+  loadBalancerSourceRanges: {{ .Values.clamav.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if and (eq .Values.clamav.service.type "LoadBalancer") (not (empty .Values.clamav.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.clamav.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: clamav
+      port: {{ .Values.clamav.service.ports.clamav }}
+      protocol: TCP
+      {{- if and (or (eq .Values.clamav.service.type "NodePort") (eq .Values.clamav.service.type "LoadBalancer")) (not (empty .Values.clamav.service.nodePorts.clamav)) }}
+      nodePort: {{ .Values.clamav.service.nodePorts.clamav }}
+      targetPort: clamav
+      {{- else if eq .Values.clamav.service.type "ClusterIP" }}
+      nodePort: null
+      targetPort: {{ .Values.clamav.containerPorts.clamav }}
+      {{- end }}
+    {{- if .Values.clamav.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.clamav.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.clamav.podLabels .Values.commonLabels ) "context" . ) }}
+  selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-clamav
+    app.kubernetes.io/component: server
+{{- end -}}
+{{- end -}}

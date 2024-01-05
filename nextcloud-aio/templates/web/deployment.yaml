@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nextcloud-aio.web.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio
+    app.kubernetes.io/component: server
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.web.podLabels .Values.commonLabels ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    metadata: 
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/component: server
+    spec:
+      initContainers:
+        - name: init-volumes
+          image: alpine
+          command:
+            - chmod
+            - "777"
+            - /nextcloud-aio-nextcloud
+            - /nextcloud-aio-web
+          volumeMounts:
+            - name: nextcloud-aio-web
+              mountPath: /nextcloud-aio-web
+            - name: nextcloud-aio-nextcloud
+              mountPath: /nextcloud-aio-nextcloud
+      containers:
+        - env:
+            - name: APACHE_MAX_SIZE
+              value: "{{ .Values.web.maxSize }}"
+            - name: APACHE_MAX_TIME
+              value: "{{ .Values.nextcloud.php.time }}"
+            - name: APACHE_PORT
+              value: "{{ .Values.web.containerPorts.https }}"
+            - name: COLLABORA_HOST
+              value: nextcloud-aio-collabora
+            - name: NC_DOMAIN
+              value: "{{ .Values.nextcloud.domain }}"
+            - name: NEXTCLOUD_HOST
+              value: {{ template "nextcloud-aio.nextcloud.fullname" . }}
+            - name: NOTIFY_PUSH_HOST
+              value: nextcloud-aio-notify-push
+            - name: ONLYOFFICE_HOST
+              value: nextcloud-aio-onlyoffice
+            - name: TALK_HOST
+              value: nextcloud-aio-talk
+            - name: TZ
+              value: "{{ include "nextcloud-aio.timezone" . }}"
+          image: {{ template "nextcloud-aio.web.image" . }}
+          imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+          name: apache
+          ports:
+            - name: http
+              containerPort: {{ .Values.web.containerPorts.http }}
+              protocol: TCP
+            - name: https
+              containerPort: {{ .Values.web.containerPorts.https }}
+              protocol: UDP
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: nextcloud-aio-nextcloud
+              readOnly: true
+            - mountPath: /mnt/data
+              name: nextcloud-aio-web
+      terminationGracePeriodSeconds: 600
+      volumes:
+        - name: nextcloud-aio-nextcloud
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-nextcloud
+        - name: nextcloud-aio-web
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-web
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}

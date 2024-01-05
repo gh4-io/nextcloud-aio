@@ -1,0 +1,79 @@
+{{- if .Values.fullTextSearch.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.fullTextSearch.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-fulltextsearch
+    app.kubernetes.io/component: server
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+  name: {{ include "nextcloud-aio.fullTextSearch.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+spec:
+  replicas: {{ .Values.fullTextSearch.replicaCount }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.fullTextSearch.podLabels .Values.commonLabels $versionLabel ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.fullTextSearch.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.fullTextSearch.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/component: server
+    spec:
+      initContainers:
+        - name: init-volumes
+          image: alpine
+          command:
+            - chmod
+            - "777"
+            - /nextcloud-aio-elasticsearch
+          volumeMounts:
+            - name: nextcloud-aio-elasticsearch
+              mountPath: /nextcloud-aio-elasticsearch
+      containers:
+        - env:
+            - name: ES_JAVA_OPTS
+              value: -Xms512M -Xmx512M
+            - name: FULLTEXTSEARCH_PASSWORD
+              value: "{{ .Values.fullTextSearch.auth.password }}"
+            - name: TZ
+              value: "{{ include "nextcloud-aio.timezone" . }}"
+            - name: bootstrap.memory_lock
+              value: "true"
+            - name: cluster.name
+              value: nextcloud-aio
+            - name: discovery.type
+              value: single-node
+            - name: http.port
+              value: "9200"
+            - name: logger.org.elasticsearch.discovery
+              value: WARN
+            - name: xpack.license.self_generated.type
+              value: basic
+            - name: xpack.security.enabled
+              value: "false"
+          image: {{ template "nextcloud-aio.fulltextsearch.image" . }}
+          imagePullPolicy: {{ .Values.fullTextSearch.image.pullPolicy }}
+          name: nextcloud-aio-fulltextsearch
+          ports:
+            - name: fullTextSearch
+              containerPort: {{ .Values.fullTextSearch.containerPorts.fullTextSearch }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: nextcloud-aio-elasticsearch
+      volumes:
+        - name: nextcloud-aio-elasticsearch
+          persistentVolumeClaim:
+            claimName: nextcloud-aio-elasticsearch
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+{{- end }}

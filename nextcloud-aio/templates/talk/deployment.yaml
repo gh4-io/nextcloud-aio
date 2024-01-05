@@ -1,0 +1,60 @@
+{{- if .Values.talk.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.talk.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-talk
+    app.kubernetes.io/component: server
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+  name: {{ include "nextcloud-aio.talk.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+spec:
+  replicas: {{ .Values.talk.replicaCount }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.talk.podLabels .Values.commonLabels $versionLabel ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.talk.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.talk.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/component: server
+    spec:
+      containers:
+        - env:
+            - name: INTERNAL_SECRET
+              value: "{{ .Values.talk.auth.internal }}"
+            - name: NC_DOMAIN
+              value: "{{ .Values.nextcloud.domain }}"
+            - name: SIGNALING_SECRET
+              value: "{{ .Values.talk.auth.signaling }}"
+            - name: TALK_PORT
+              value: "{{ .Values.talk.containerPorts.talk }}"
+            - name: TURN_SECRET
+              value: "{{ .Values.talk.auth.turn }}"
+            - name: TZ
+              value: "{{ include "nextcloud-aio.timezone" . }}"
+          image: {{ template "nextcloud-aio.talk.image" . }}
+          imagePullPolicy: {{ .Values.talk.image.pullPolicy }}
+          name: talk
+          ports:
+            - name: talk
+              containerPort: {{ .Values.talk.containerPorts.talk }}
+              protocol: TCP
+            - name: talk-UDP
+              containerPort: {{ .Values.talk.containerPorts.talk }}
+              protocol: UDP
+            - name: http
+              containerPort: {{ .Values.talk.containerPorts.http }}
+              protocol: TCP
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -1,18 +1,79 @@
-# Default values for nextcloud-aio.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+##
 
-replicaCount: 1
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+## @param global.storageClass Global StorageClass for Persistent Volume(s)
+##
+global:
+  imageRegistry: ""
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  storageClass: ""
+  ## global time zone setting e.g. "UTC"
+  ##
+  tz: America/New_York
 
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+## @section Common parameters
+##
 
-imagePullSecrets: []
+## @param kubeVersion Override Kubernetes version
+##
+kubeVersion: ""
+## @param nameOverride String to partially override common.names.name
+##
 nameOverride: ""
+## @param fullnameOverride String to fully override common.names.fullname
+##
 fullnameOverride: ""
+## @param namespaceOverride String to fully override common.names.namespace
+##
+namespaceOverride: ""
+## @param commonLabels Labels to add to all deployed objects
+##
+commonLabels: {}
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+## @param clusterDomain Kubernetes cluster domain name
+##
+clusterDomain: cluster.local
+## @param extraDeploy Array of extra objects to deploy with the release
+##
+extraDeploy: []
+
+## Enable diagnostic mode in the deployment
+##
+diagnosticMode:
+  ## @param diagnosticMode.enabled Enable diagnostic mode (all probes will be disabled and the command will be overridden)
+  ##
+  enabled: false
+  ## @param diagnosticMode.command Command to override all containers in the deployment
+  ##
+  command:
+    - sleep
+  ## @param diagnosticMode.args Args to override all containers in the deployment
+  ##
+  args:
+    - infinity
+
+
+affinity: {}
+  # nodeAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #     nodeSelectorTerms:
+  #       - matchExpressions:
+  #           - key: app.env/nextcloud
+  #             operator: In
+  #             values:
+  #               - 'true'
+
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -23,60 +84,533 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
+appsAllowed: []
 
-podSecurityContext: {}
-  # fsGroup: 2000
+additionalTrustedProxy: []
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+subscriptionKey: ""
 
-service:
-  type: ClusterIP
-  port: 80
+additionalAPKS: imagemagick
 
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+additionalPHPExtensions: imagemagick
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+updateAppsOnStartup: "false"
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+removeDisabledApps: "false"
 
-nodeSelector: {}
+startupApps: "deck twofactor_totp tasks calendar contacts notes" 
 
-tolerations: []
+trustedCAcertDir: ""
 
-affinity: {}
+web:
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-apache
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  podLabels: {}
+
+  persistence:
+    enabled: true
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    existingClaim: ""
+    storageClass: ""
+
+  persistentVolumeClaimRetentionPolicy:
+    enabled: false
+    whenScaled: Retain
+    whenDeleted: Retain
+
+  containerPorts: 
+    http: 80
+    https: 443
+    
+  service:
+    type: ClusterIP
+    ports: 
+      http: 80
+      https: 443
+    annotations: {}
+    extraPorts: []
+
+  maxSize: "10737418240"
+
+  ingress: {}
+
+nextcloud:
+
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-nextcloud
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  podLabels: {}
+
+  persistence:
+    enabled: true
+    size: 1Gi
+    labels: {}
+    existingClaim: ""
+
+  persistentVolumeClaimRetentionPolicy:
+    enabled: false
+    whenScaled: Retain
+    whenDeleted: Retain
+
+  php:
+    memory: 512M
+    upload: 10G
+    time: 3600
+
+  domain: nextcloud.home
+
+  token: ""
+
+  auth:
+    existingSecret: ""
+    user: admin
+    password: superSecretPassword!
+
+  enableMajor: true
+
+  containerPorts:
+    http: 9000
+    https: 9001
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      http: 9000
+      https: 9001
+
+  mail:
+    domain: ""
+    sender: admin@nextcloud.home
+    stmp:
+      host: ""
+      secure: ""
+      port: ""
+      authType: ""
+      name: ""
+      password: ""
+
+  dataStorage:
+    persistence:
+      enabled: true
+      size: 1Gi
+      accessModes:
+      - ReadWriteOnce
+      labels: {}
+      existingClaim: ""
+
+    persistentVolumeClaimRetentionPolicy:
+      enabled: false
+      whenScaled: Retain
+      whenDeleted: Retain
+
+db:
+
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-postgresql
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  podLabels: {}
+
+  auth:
+    password: superSecretPassword!
+    user: nextcloud
+    database: nextcloud_database
+    existingSecret: ""
+    secretKeys:
+      userPasswordKey: ""
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports: 
+      postgres: 5432
+
+  nameOverride: ""
+
+  fullnameOverride: ""
+
+  containerPorts: 
+    postgres: 5432
+
+  persistence:
+    enabled: true
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    labels: {}
+    existingClaim: ""
+
+  persistentVolumeClaimRetentionPolicy:
+    enabled: false
+    whenScaled: Retain
+    whenDeleted: Retain
+
+  dumpStorage:
+
+    persistence:
+      enabled: true
+      size: 1Gi
+      accessModes:
+        - ReadWriteOnce
+      existingClaim: ""
+      storageClass: ""
+
+    persistentVolumeClaimRetentionPolicy:
+      enabled: false
+      whenScaled: Retain
+      whenDeleted: Retain
+
+clamav:
+
+  enabled: true
+  
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-clamav
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  podLabels: {}
+
+  persistence:
+    enabled: true
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    labels: {}
+    existingClaim: ""
+
+  persistentVolumeClaimRetentionPolicy:
+    enabled: false
+    whenScaled: Retain
+    whenDeleted: Retain
+
+  nameOverride: ""
+
+  fullnameOverride: ""
+
+  containerPorts:
+    clamav: 3310
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      clamav: 3310
+
+collabora:
+
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-collabora
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  podLabels: {}
+
+  persistence:
+    enabled: true
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    labels: {}
+    existingClaim: ""
+
+  persistentVolumeClaimRetentionPolicy:
+    enabled: false
+    whenScaled: Retain
+    whenDeleted: Retain
+
+  nameOverride: ""
+
+  fullnameOverride: ""
+
+  dictionaries: de_DE en_GB en_US es_ES fr_FR it nl pt_BR pt_PT ru
+
+  containerPorts:
+    collabora: 9980
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      collabora: 9980
+
+onlyOffice: 
+
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-onlyoffice
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  podLabels: {}
+
+  persistence:
+    enabled: true
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    labels: {}
+    existingClaim: ""
+
+  persistentVolumeClaimRetentionPolicy:
+    enabled: false
+    whenScaled: Retain
+    whenDeleted: Retain
+
+  auth:
+    password: ""
+
+  containerPorts:
+    http: 80
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      http: 80
+
+redis:
+
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-redis
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  podLabels: {}
+
+  persistence:
+    enabled: true
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    labels: {}
+    existingClaim: ""
+
+  persistentVolumeClaimRetentionPolicy:
+    enabled: false
+    whenScaled: Retain
+    whenDeleted: Retain
+
+  auth: 
+    password: ""
+
+  containerPorts: 
+    redis: 6379
+
+  service:
+    type: ClusterIP
+    ports: 
+      redis: 6379
+    annotations: {}
+    extraPorts: []
+
+talk: 
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-talk
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  auth: 
+    internal: ""
+    signaling: ""
+    recording: ""
+    turn: ""
+
+  podLabels: {}
+
+  containerPorts:
+    talk: 3478
+    http: 8081
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports: 
+      talk: 3478
+
+  recording:
+
+    enabled: true
+
+    replicaCount: 1
+
+    image:
+      registry: docker.io
+      repository: nextcloud/aio-talk-recording
+      tag: 20231220_153200-latest
+      digest: ""
+      pullPolicy: IfNotPresent
+      pullSecrets: []
+
+    podLabels: {}
+
+    containerPorts: 
+      recorder: 1234
+
+    service:
+      enabled: true
+      type: ClusterIP
+      ports:
+        recorder: 1234
+
+    host: ""
+
+    port: ""
+
+    fullnameOverride: ""
+
+    nameOverride: ""
+
+imaginary: 
+
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-fulltextsearch
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  podLabels: {}
+
+  containerPorts:
+    http: 9000
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      http: 9000
+
+fullTextSearch:
+
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-fulltextsearch
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  podLabels: {}
+
+  auth: 
+    password: ""
+
+  containerPorts:
+    fullTextSearch: 9200
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      fullTextSearch: 9200
+
+notifyPush:
+
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: nextcloud/aio-notify-push
+    tag: 20231220_153200-latest
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  podLabels: {}
+
+  containerPorts:
+    notify: 7867
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      notify: 7867
+
+elasticSearch: 
+
+  enabled: true
+  persistence:
+    enabled: true
+    size: 1Gi
+    labels: {}
+    existingClaim: ""
+
+  persistentVolumeClaimRetentionPolicy:
+    enabled: false
+    whenScaled: Retain
+    whenDeleted: Retain
+
+
