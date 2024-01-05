@@ -124,7 +124,7 @@ spec:
             - name: OVERWRITEPROTOCOL
               value: https
             - name: PHP_MAX_TIME
-              value: {{ .Values.nextcloud.php.time }}
+              value: {{ .Values.nextcloud.php.time | quote }}
             - name: PHP_MEMORY_LIMIT
               value: {{ .Values.nextcloud.php.memory }}
             - name: PHP_UPLOAD_LIMIT
@@ -152,7 +152,7 @@ spec:
             - name: TALK_ENABLED
               value: {{ include "nextcloud-aio.talk.enabled" . }}
             - name: TALK_PORT
-              value: {{ .Values.talk.service.ports.talk }}
+              value: {{ .Values.talk.service.ports.talk | quote }}
             - name: TALK_RECORDING_ENABLED
               value: {{ include "nextcloud-aio.recording.enabled" . }}
             - name: TALK_RECORDING_HOST
