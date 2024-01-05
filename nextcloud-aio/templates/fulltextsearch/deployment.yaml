@@ -63,7 +63,7 @@ spec:
           imagePullPolicy: {{ .Values.fullTextSearch.image.pullPolicy }}
           name: nextcloud-aio-fulltextsearch
           ports:
-            - name: fullTextSearch
+            - name: fulltextsearch
               containerPort: {{ .Values.fullTextSearch.containerPorts.fullTextSearch }}
               protocol: TCP
           volumeMounts:
