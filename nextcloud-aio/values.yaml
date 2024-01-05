@@ -84,7 +84,6 @@ removeDisabledApps: "false"
 
 startupApps: "deck twofactor_totp tasks calendar contacts notes" 
 
-trustedCAcertDir: ""
 
 web:
   enabled: true
@@ -100,6 +99,8 @@ web:
     pullSecrets: []
 
   podLabels: {}
+
+  podAnnotations: {}
 
   persistence:
     enabled: true
@@ -144,16 +145,37 @@ nextcloud:
 
   podLabels: {}
 
+  podAnnotations: {}
+
   persistence:
     enabled: true
     size: 1Gi
+    accessModes:
+      - ReadWriteOnce
     labels: {}
+    annotations: {}
+    selector: {}
+    dataSource: {}
     existingClaim: ""
 
   persistentVolumeClaimRetentionPolicy:
     enabled: false
     whenScaled: Retain
     whenDeleted: Retain
+
+  certs:
+    trustedCAcertDir: ""
+    persistence:
+      enabled: true
+      size: 1Gi
+      accessModes:
+        - ReadWriteOnce
+      labels: {}
+      annotations: {}
+      selector: {}
+      dataSource: {}
+      existingClaim: ""
+
 
   php:
     memory: 512M
@@ -223,6 +245,8 @@ db:
 
   podLabels: {}
 
+  podAnnotations: {}
+
   auth:
     password: superSecretPassword!
     user: nextcloud
@@ -250,6 +274,9 @@ db:
     accessModes:
       - ReadWriteOnce
     labels: {}
+    annotations: {}
+    selector: {}
+    dataSource: {}
     existingClaim: ""
 
   persistentVolumeClaimRetentionPolicy:
@@ -288,12 +315,17 @@ clamav:
 
   podLabels: {}
 
+  podAnnotations: {}
+
   persistence:
     enabled: true
     size: 1Gi
     accessModes:
       - ReadWriteOnce
     labels: {}
+    annotations: {}
+    selector: {}
+    dataSource: {}
     existingClaim: ""
 
   persistentVolumeClaimRetentionPolicy:
@@ -330,12 +362,17 @@ collabora:
 
   podLabels: {}
 
+  podAnnotations: {}
+
   persistence:
     enabled: true
     size: 1Gi
     accessModes:
       - ReadWriteOnce
     labels: {}
+    annotations: {}
+    selector: {}
+    dataSource: {}
     existingClaim: ""
 
   persistentVolumeClaimRetentionPolicy:
@@ -374,12 +411,17 @@ onlyOffice:
 
   podLabels: {}
 
+  podAnnotations: {}
+
   persistence:
     enabled: true
     size: 1Gi
     accessModes:
       - ReadWriteOnce
     labels: {}
+    annotations: {}
+    selector: {}
+    dataSource: {}
     existingClaim: ""
 
   persistentVolumeClaimRetentionPolicy:
@@ -415,12 +457,17 @@ redis:
 
   podLabels: {}
 
+  podAnnotations: {}
+
   persistence:
     enabled: true
     size: 1Gi
     accessModes:
       - ReadWriteOnce
     labels: {}
+    annotations: {}
+    selector: {}
+    dataSource: {}
     existingClaim: ""
 
   persistentVolumeClaimRetentionPolicy:
@@ -462,6 +509,8 @@ talk:
 
   podLabels: {}
 
+  podAnnotations: {}
+
   containerPorts:
     talk: 3478
     http: 8081
@@ -487,6 +536,8 @@ talk:
       pullSecrets: []
 
     podLabels: {}
+
+    podAnnotations: {}
 
     containerPorts: 
       recorder: 1234
@@ -521,6 +572,8 @@ imaginary:
 
   podLabels: {}
 
+  podAnnotations: {}
+
   containerPorts:
     http: 9000
 
@@ -545,6 +598,8 @@ fullTextSearch:
     pullSecrets: []
 
   podLabels: {}
+
+  podAnnotations: {}
 
   auth: 
     password: ""
@@ -573,6 +628,8 @@ notifyPush:
     pullSecrets: []
 
   podLabels: {}
+
+  podAnnotations: {}
 
   containerPorts:
     notify: 7867

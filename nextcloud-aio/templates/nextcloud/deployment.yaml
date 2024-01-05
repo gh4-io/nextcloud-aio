@@ -152,13 +152,13 @@ spec:
             - name: TALK_ENABLED
               value: {{ include "nextcloud-aio.talk.enabled" . }}
             - name: TALK_PORT
-              value: {{ .Values.talk.service.port }}
+              value: {{ .Values.talk.service.ports.talk }}
             - name: TALK_RECORDING_ENABLED
               value: {{ include "nextcloud-aio.recording.enabled" . }}
             - name: TALK_RECORDING_HOST
               value: {{ include "nextcloud-aio.recording.fullname" . }}
             - name: TRUSTED_CACERTS_DIR
-              value: {{ .Values.trustedCAcertDir }}
+              value: {{ .Values.nextcloud.certs.trustedCAcertDir }}
             - name: TURN_SECRET
               value: "{{ .Values.talk.auth.turn }}"
             - name: TZ
