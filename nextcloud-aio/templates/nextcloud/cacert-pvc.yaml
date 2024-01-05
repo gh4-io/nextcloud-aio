@@ -1,0 +1,31 @@
+{{- if .Values.nextcloud.certs.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-aio-nextcloud-trusted-cacerts
+  namespace: {{ include "common.names.namespace" . | quote }}
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.nextcloud.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-nextcloud
+    app.kubernetes.io/component: cacerts-pvc
+  {{- if or .Values.nextcloud.certs.persistence.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.nextcloud.certs.persistence.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+  {{- range .Values.nextcloud.certs.persistence.accessModes }}
+    - {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.nextcloud.certs.persistence.size }}
+  {{- if .Values.nextcloud.certs.persistence.selector }}
+  selector: {{- include "common.tplvalues.render" (dict "value" .Values.nextcloud.certs.persistence.selector "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if .Values.nextcloud.certs.persistence.dataSource }}
+  dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.nextcloud.certs.persistence.dataSource "context" $) | nindent 4 }}
+  {{- end }}
+  {{- include "common.storage.class" (dict "persistence" .Values.nextcloud.certs.persistence "global" .Values.global) | nindent 2 }}
+{{- end -}}
