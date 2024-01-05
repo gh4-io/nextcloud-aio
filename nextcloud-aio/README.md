@@ -15,10 +15,10 @@
 To install the chart with the release name `my-release`:
 
 ```console
-helm install my-release oci://REGISTRY_NAME/REPOSITORY_NAME/nextcloud-aio
+helm install my-release https://REPOSITORY_NAME/nextcloud-aio
 ```
 
-> Note: You need to substitute the placeholders `REGISTRY_NAME` and `REPOSITORY_NAME` with a reference to your Helm chart registry and repository. For example, in the case of Bitnami, you need to use `REGISTRY_NAME=registry-1.docker.io` and `REPOSITORY_NAME=bitnamicharts`.
+> Note: You need to substitute the placeholder  `REPOSITORY_NAME` with a reference to your Helm chart repository. For example, in the case of GH4.io Github repos, you need to use  `REPOSITORY_NAME=gh4-io.github.io`.
 
 The command deploys Nextcloud-AIO on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
 
