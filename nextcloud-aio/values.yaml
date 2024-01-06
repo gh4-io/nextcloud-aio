@@ -120,6 +120,7 @@ web:
     https: 443
     
   service:
+    enabled: true
     type: ClusterIP
     ports: 
       http: 80
@@ -203,6 +204,8 @@ nextcloud:
     ports:
       http: 9000
       https: 9001
+    annotations: {}
+    extraPorts: []
 
   mail:
     domain: ""
@@ -260,6 +263,8 @@ db:
     type: ClusterIP
     ports: 
       postgres: 5432
+    annotations: {}
+    extraPorts: []
 
   nameOverride: ""
 
@@ -345,6 +350,8 @@ clamav:
     type: ClusterIP
     ports:
       clamav: 3310
+    annotations: {}
+    extraPorts: []
 
 collabora:
 
@@ -394,6 +401,8 @@ collabora:
     type: ClusterIP
     ports:
       collabora: 9980
+    annotations: {}
+    extraPorts: []
 
 onlyOffice: 
 
@@ -440,6 +449,8 @@ onlyOffice:
     type: ClusterIP
     ports:
       http: 80
+    annotations: {}
+    extraPorts: []
 
 redis:
 
@@ -482,6 +493,7 @@ redis:
     redis: 6379
 
   service:
+    enabled: true
     type: ClusterIP
     ports: 
       redis: 6379
@@ -520,6 +532,8 @@ talk:
     type: ClusterIP
     ports: 
       talk: 3478
+    annotations: {}
+    extraPorts: []
 
   recording:
 
@@ -547,6 +561,8 @@ talk:
       type: ClusterIP
       ports:
         recorder: 1234
+      annotations: {}
+      extraPorts: []
 
     host: ""
 
@@ -582,6 +598,8 @@ imaginary:
     type: ClusterIP
     ports:
       http: 9000
+    annotations: {}
+    extraPorts: []
 
 fullTextSearch:
 
@@ -612,6 +630,8 @@ fullTextSearch:
     type: ClusterIP
     ports:
       fullTextSearch: 9200
+    annotations: {}
+    extraPorts: []
 
 notifyPush:
 
@@ -639,6 +659,8 @@ notifyPush:
     type: ClusterIP
     ports:
       notify: 7867
+    annotations: {}
+    extraPorts: []
 
 elasticSearch: 
 

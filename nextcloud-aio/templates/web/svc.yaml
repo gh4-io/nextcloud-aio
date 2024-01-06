@@ -1,3 +1,5 @@
+{{- if .Values.web.enabled }}
+{{- if .Values.web.service.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -60,3 +62,5 @@ spec:
   selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
     app.kubernetes.io/part-of: nextcloud-aio-web
     app.kubernetes.io/component: server
+{{- end -}}
+{{- end -}}
