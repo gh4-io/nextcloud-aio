@@ -77,7 +77,7 @@ spec:
             - name: ADDITIONAL_TRUSTED_PROXY
               value: "{{ .Values.additionalTrustedProxy }}"
             - name: SERVERINFO_TOKEN
-              value: "{{ .Values.nextcloud.token }}"
+              value: {{ required "Required nextcloud.token needed!" (.Values.nextcloud.token | quote) }}
             - name: ADDITIONAL_APKS
               value: "{{ .Values.additionalAPKS }}"
             - name: ADDITIONAL_PHP_EXTENSIONS
@@ -86,7 +86,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "nextcloud-aio.nextcloud.secretName" . | quote }}
-                  key: {{ include "nextcloud-aio.nextcloud.passwordKey" . | quote }}
+                  key: {{ required "Nextcloud nextcloud.auth.password needed!" (include "nextcloud-aio.nextcloud.passwordKey" . | quote) }}
             - name: ADMIN_USER
               value: "{{ .Values.nextcloud.auth.user }}"
             - name: APACHE_PORT

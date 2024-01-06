@@ -32,11 +32,11 @@ spec:
       containers:
         - env:
             - name: INTERNAL_SECRET
-              value: "{{ .Values.talk.auth.internal }}"
+              value: {{ required "Required talk.auth.internall needed!" (.Values.talk.auth.internal | quote) }}
             - name: NC_DOMAIN
-              value: "{{ .Values.nextcloud.domain }}"
+              value: {{ .Values.nextcloud.domain }}
             - name: RECORDING_SECRET
-              value: "{{ .Values.talk.auth.recording }}"
+              value: {{ required "Required talk.auth.recording needed!" (.Values.talk.auth.recording | quote) }}
             - name: TZ
               value: "{{ include "nextcloud-aio.timezone" . }}"
           image: {{ template "nextcloud-aio.talk.recording.image" . }}

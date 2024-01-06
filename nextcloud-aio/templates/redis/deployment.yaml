@@ -40,7 +40,7 @@ spec:
       containers:
         - env:
             - name: REDIS_HOST_PASSWORD
-              value: "{{ .Values.redis.auth.password }}"
+              value: {{ required "Required redis.auth.password needed!" (.Values.redis.auth.password | quote) }}
             - name: TZ
               value: "{{ include "nextcloud-aio.timezone" . }}"
           image: {{ template "nextcloud-aio.redis.image" . }}

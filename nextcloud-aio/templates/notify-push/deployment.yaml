@@ -58,7 +58,7 @@ spec:
             - name: REDIS_HOST_PASSWORD
               value: "{{ .Values.redis.auth.password }}"
           image: {{ template "nextcloud-aio.notifyPush.image" . }}
-          name: nextcloud-aio-notify-push
+          name: notify-push
           ports:
             - containerPort: {{ .Values.notifyPush.containerPorts.notify }}
               protocol: TCP
