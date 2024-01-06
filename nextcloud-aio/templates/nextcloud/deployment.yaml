@@ -92,21 +92,21 @@ spec:
             - name: APACHE_PORT
               value: "{{ .Values.web.service.ports.https }}"
             - name: CLAMAV_ENABLED
-              value: {{ include "nextcloud-aio.clamav.enabled" . }}
+              value: {{ include "nextcloud-aio.clamav.enabled" . | quote }}
             - name: CLAMAV_HOST
               value: {{ include "nextcloud-aio.clamav.fullname" . }}
             - name: COLLABORA_ENABLED
-              value: {{ include "nextcloud-aio.collabora.enabled" . }}
+              value: {{ include "nextcloud-aio.collabora.enabled" . | quote }}
             - name: COLLABORA_HOST
               value: {{ include "nextcloud-aio.collabora.fullname" . }}
             - name: FULLTEXTSEARCH_ENABLED
-              value: {{ include "nextcloud-aio.fullTextSearch.enabled" . }}
+              value: {{ include "nextcloud-aio.fullTextSearch.enabled" . | quote }}
             - name: FULLTEXTSEARCH_HOST
               value: {{ include "nextcloud-aio.fullTextSearch.fullname" . }}
             - name: FULLTEXTSEARCH_PASSWORD
               value: "{{ .Values.fullTextSearch.auth.password }}"
             - name: IMAGINARY_ENABLED
-              value: {{ include "nextcloud-aio.imaginary.enabled" . }}
+              value: {{ include "nextcloud-aio.imaginary.enabled" . | quote }}
             - name: IMAGINARY_HOST
               value: {{ include "nextcloud-aio.imaginary.fullname" . }}
             - name: INSTALL_LATEST_MAJOR
@@ -116,7 +116,7 @@ spec:
             - name: NEXTCLOUD_DATA_DIR
               value: /mnt/ncdata
             - name: ONLYOFFICE_ENABLED
-              value: {{ include "nextcloud-aio.onlyOffice.enabled" . }}
+              value: {{ include "nextcloud-aio.onlyOffice.enabled" . | quote }}
             - name: ONLYOFFICE_HOST
               value: {{ include "nextcloud-aio.onlyOffice.fullname" . }}
             - name: ONLYOFFICE_SECRET
@@ -152,11 +152,11 @@ spec:
             - name: STARTUP_APPS
               value: {{ .Values.startupApps }}
             - name: TALK_ENABLED
-              value: {{ include "nextcloud-aio.talk.enabled" . }}
+              value: {{ include "nextcloud-aio.talk.enabled" . | quote }}
             - name: TALK_PORT
               value: {{ .Values.talk.service.ports.talk | quote }}
             - name: TALK_RECORDING_ENABLED
-              value: {{ include "nextcloud-aio.recording.enabled" . }}
+              value: {{ include "nextcloud-aio.recording.enabled" . | quote }}
             - name: TALK_RECORDING_HOST
               value: {{ include "nextcloud-aio.recording.fullname" . }}
             - name: TRUSTED_CACERTS_DIR
