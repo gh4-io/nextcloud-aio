@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.db.image "chart" .Chart ) ) }}
   {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
@@ -13,6 +13,7 @@ metadata:
   namespace: {{ include "common.names.namespace" . | quote }}
 spec:
   replicas: {{ .Values.db.replicaCount }}
+  serviceName: nextcloud-aio-database-headless
   {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.db.podLabels .Values.commonLabels $versionLabel ) "context" . ) }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}

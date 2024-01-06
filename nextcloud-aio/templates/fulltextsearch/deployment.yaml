@@ -44,9 +44,9 @@ spec:
             - name: ES_JAVA_OPTS
               value: -Xms512M -Xmx512M
             - name: FULLTEXTSEARCH_PASSWORD
-              value: "{{ .Values.fullTextSearch.auth.password }}"
+              value: {{ .Values.fullTextSearch.auth.password | quote }}
             - name: TZ
-              value: "{{ include "nextcloud-aio.timezone" . }}"
+              value: {{ include "nextcloud-aio.timezone" . | quote }}
             - name: bootstrap.memory_lock
               value: "true"
             - name: cluster.name
