@@ -40,7 +40,7 @@ spec:
             - name: dictionaries
               value: "{{ .Values.collabora.dictionaries }}"
             - name: extra_params
-              value: --o:ssl.enable=false --o:ssl.termination=true --o:mount_jail_tree=false --o:logging.level=warning --o:home_mode.enable=true {{ .Values.COLLABORA_SECCOMP_POLICY }} --o:remote_font_config.url=https://{{ .Values.nextcloud.domain }}/apps/richdocuments/settings/fonts.json
+              value: --o:ssl.enable=false --o:ssl.termination=true --o:mount_jail_tree=false --o:logging.level=warning --o:home_mode.enable=true {{ printf "--o:security.seccomp=%s" .Values.collabora.extraParams.seccomp }} --o:remote_font_config.url=https://{{ .Values.nextcloud.domain }}/apps/richdocuments/settings/fonts.json
             - name: server_name
               value: "{{ .Values.nextcloud.domain }}"
           image: nextcloud/aio-collabora:20231220_153200-latest

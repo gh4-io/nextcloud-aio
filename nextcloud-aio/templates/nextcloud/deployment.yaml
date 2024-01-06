@@ -71,7 +71,7 @@ spec:
             - name: MAIL_DOMAIN
               value: "{{ .Values.nextcloud.mail.domain }}"
             - name: SUBSCRIPTION_KEY
-              value: "{{ .Values.subscriptionKey }}"
+              value: "{{ .Values.nextcloud.subscriptionKey }}"
             - name: APPS_ALLOWLIST
               value: "{{ .Values.appsAllowed }}"
             - name: ADDITIONAL_TRUSTED_PROXY
@@ -108,9 +108,9 @@ spec:
             - name: IMAGINARY_ENABLED
               value: {{ include "nextcloud-aio.imaginary.enabled" . }}
             - name: IMAGINARY_HOST
-              value: nextcloud-aio-imaginary
+              value: {{ include "nextcloud-aio.imaginary.fullname" . }}
             - name: INSTALL_LATEST_MAJOR
-              value: {{ if .Values.nextcloud.enableMajor -}}{{- print "yes" | quote }}{{- else }}{{- print "no" | quote }}{{- end }}
+              value: {{ include "nextcloud-aio.nextcloud.enableMajor" . }}
             - name: NC_DOMAIN
               value: "{{ .Values.nextcloud.domain }}"
             - name: NEXTCLOUD_DATA_DIR
@@ -118,7 +118,7 @@ spec:
             - name: ONLYOFFICE_ENABLED
               value: {{ include "nextcloud-aio.onlyOffice.enabled" . }}
             - name: ONLYOFFICE_HOST
-              value: nextcloud-aio-onlyoffice
+              value: {{ include "nextcloud-aio.onlyOffice.fullname" . }}
             - name: ONLYOFFICE_SECRET
               value: {{ .Values.onlyOffice.auth.password }}
             - name: OVERWRITEHOST
@@ -126,13 +126,13 @@ spec:
             - name: OVERWRITEPROTOCOL
               value: https
             - name: PHP_MAX_TIME
-              value: {{ .Values.nextcloud.php.time | quote }}
+              value: {{ .Values.nextcloud.phpLimits.time | quote }}
             - name: PHP_MEMORY_LIMIT
-              value: {{ .Values.nextcloud.php.memory }}
+              value: {{ .Values.nextcloud.phpLimits.memory }}
             - name: PHP_UPLOAD_LIMIT
-              value: {{ .Values.nextcloud.php.upload }}
+              value: {{ .Values.nextcloud.phpLimits.upload }}
             - name: POSTGRES_DB
-              value: nextcloud_database
+              value: {{ .Values.db.auth.database }}
             - name: POSTGRES_HOST
               value: {{ include "nextcloud-aio.db.fullname" . }}
             - name: POSTGRES_PASSWORD

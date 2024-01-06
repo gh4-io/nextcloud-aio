@@ -72,8 +72,6 @@ appsAllowed: []
 
 additionalTrustedProxy: []
 
-subscriptionKey: ""
-
 additionalAPKS: imagemagick
 
 additionalPHPExtensions: imagemagick
@@ -178,7 +176,7 @@ nextcloud:
       existingClaim: ""
 
 
-  php:
+  phpLimits:
     memory: 512M
     upload: 10G
     time: 3600
@@ -193,6 +191,8 @@ nextcloud:
     password: superSecretPassword!
 
   enableMajor: true
+
+  subscriptionKey: ""
 
   containerPorts:
     http: 9000
@@ -236,7 +236,7 @@ db:
 
   enabled: true
 
-  replicaCount: 1
+  replicaCount: 3
 
   image:
     registry: docker.io
@@ -371,27 +371,14 @@ collabora:
 
   podAnnotations: {}
 
-  persistence:
-    enabled: true
-    size: 1Gi
-    accessModes:
-      - ReadWriteOnce
-    labels: {}
-    annotations: {}
-    selector: {}
-    dataSource: {}
-    existingClaim: ""
-
-  persistentVolumeClaimRetentionPolicy:
-    enabled: false
-    whenScaled: Retain
-    whenDeleted: Retain
-
   nameOverride: ""
 
   fullnameOverride: ""
 
   dictionaries: de_DE en_GB en_US es_ES fr_FR it nl pt_BR pt_PT ru
+
+  extraParams:
+    seccomp: "true"
 
   containerPorts:
     collabora: 9980
@@ -563,10 +550,6 @@ talk:
         recorder: 1234
       annotations: {}
       extraPorts: []
-
-    host: ""
-
-    port: ""
 
     fullnameOverride: ""
 

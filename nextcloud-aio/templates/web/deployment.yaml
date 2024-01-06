@@ -45,17 +45,17 @@ spec:
             - name: APACHE_PORT
               value: "{{ .Values.web.containerPorts.https }}"
             - name: COLLABORA_HOST
-              value: nextcloud-aio-collabora
+              value: {{ include "nextcloud-aio.collabora.fullname" . }}
             - name: NC_DOMAIN
               value: "{{ .Values.nextcloud.domain }}"
             - name: NEXTCLOUD_HOST
               value: {{ template "nextcloud-aio.nextcloud.fullname" . }}
             - name: NOTIFY_PUSH_HOST
-              value: nextcloud-aio-notify-push
+              value: {{ include "nextcloud-aio.notifyPush.fullname" . }}
             - name: ONLYOFFICE_HOST
-              value: nextcloud-aio-onlyoffice
+              value: {{ include "nextcloud-aio.onlyOffice.fullname" . }}
             - name: TALK_HOST
-              value: nextcloud-aio-talk
+              value: {{ include "nextcloud-aio.talk.fullname" . }}
             - name: TZ
               value: "{{ include "nextcloud-aio.timezone" . }}"
           image: {{ template "nextcloud-aio.web.image" . }}
