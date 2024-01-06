@@ -48,7 +48,7 @@ spec:
             - name: talk
               containerPort: {{ .Values.talk.containerPorts.talk }}
               protocol: TCP
-            - name: talk-UDP
+            - name: talk-udp
               containerPort: {{ .Values.talk.containerPorts.talk }}
               protocol: UDP
             - name: http
