@@ -8,8 +8,8 @@ metadata:
   {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.redis.image "chart" .Chart ) ) }}
   {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
   labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
-    app.kubernetes.io/part-of: nextcloud-aio
-    app.kubernetes.io/component: redis-svc
+    app.kubernetes.io/part-of: nextcloud-aio-redis
+    app.kubernetes.io/component: svc
   {{- if or .Values.redis.service.annotations .Values.commonAnnotations }}
   {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.redis.service.annotations .Values.commonAnnotations ) "context" . ) }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
