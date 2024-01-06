@@ -58,4 +58,5 @@ spec:
     {{- end }}
   {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.web.podLabels .Values.commonLabels ) "context" . ) }}
   selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
-    app.kubernetes.io/component: web
+    app.kubernetes.io/part-of: nextcloud-aio-web
+    app.kubernetes.io/component: server
