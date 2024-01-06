@@ -68,9 +68,9 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-appsAllowed: []
+appsAllowed: ""
 
-additionalTrustedProxy: []
+additionalTrustedProxy: ""
 
 additionalAPKS: imagemagick
 
@@ -148,7 +148,7 @@ nextcloud:
 
   persistence:
     enabled: true
-    size: 1Gi
+    size: 5Gi
     accessModes:
       - ReadWriteOnce
     labels: {}
@@ -221,7 +221,7 @@ nextcloud:
   dataStorage:
     persistence:
       enabled: true
-      size: 1Gi
+      size: 5Gi
       accessModes:
       - ReadWriteOnce
       labels: {}

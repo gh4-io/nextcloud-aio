@@ -41,7 +41,7 @@ spec:
             - name: APACHE_MAX_SIZE
               value: "{{ .Values.web.maxSize }}"
             - name: APACHE_MAX_TIME
-              value: "{{ .Values.nextcloud.phpLimit.time }}"
+              value: {{ .Values.nextcloud.phpLimits.time | quote }}
             - name: APACHE_PORT
               value: "{{ .Values.web.containerPorts.https }}"
             - name: COLLABORA_HOST
