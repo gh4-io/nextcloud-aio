@@ -19,7 +19,8 @@ spec:
     matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
       app.kubernetes.io/component: server
   template:
-    annotations:
+    metadata:
+      annotations:
         {{- if .Values.notifyPush.podAnnotations }}
         {{- include "common.tplvalues.render" (dict "value" .Values.notifyPush.podAnnotations "context" $) | nindent 8 }}
         {{- end }}
