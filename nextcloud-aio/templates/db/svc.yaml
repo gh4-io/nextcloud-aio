@@ -50,7 +50,7 @@ spec:
     {{- end }}
   {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.db.podLabels .Values.commonLabels ) "context" . ) }}
   selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
-    app.kubernetes.io/part-of: nextcloud-aio-db
+    app.kubernetes.io/part-of: nextcloud-aio-database
     app.kubernetes.io/component: database
 {{- end -}}
 {{- end -}}
