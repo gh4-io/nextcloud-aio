@@ -110,7 +110,7 @@ spec:
             - name: IMAGINARY_HOST
               value: {{ include "nextcloud-aio.imaginary.fullname" . }}
             - name: INSTALL_LATEST_MAJOR
-              value: {{ include "nextcloud-aio.nextcloud.enableMajor" . }}
+              value: {{ include "nextcloud-aio.nextcloud.enableMajor" . | quote }}
             - name: NC_DOMAIN
               value: "{{ .Values.nextcloud.domain }}"
             - name: NEXTCLOUD_DATA_DIR
