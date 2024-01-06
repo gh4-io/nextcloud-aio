@@ -1,3 +1,4 @@
+{{- if .Values.fullTextSearch.enabled }}
 {{- if .Values.elasticSearch.enabled }}
 {{- if .Values.elasticSearch.persistence.enabled }}
 apiVersion: v1
@@ -20,5 +21,6 @@ spec:
   resources:
     requests:
       storage: {{ .Values.elasticSearch.persistence.size }}
+{{- end -}}
 {{- end -}}
 {{- end -}}

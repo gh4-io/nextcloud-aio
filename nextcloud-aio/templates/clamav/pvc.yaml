@@ -1,3 +1,4 @@
+{{- if .Values.clamav.enabled }} 
 {{- if .Values.clamav.persistence.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -28,4 +29,5 @@ spec:
   dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.clamav.persistence.dataSource "context" $) | nindent 4 }}
   {{- end }}
   {{- include "common.storage.class" (dict "persistence" .Values.clamav.persistence "global" .Values.global) | nindent 2 }}
+{{- end -}}
 {{- end -}}

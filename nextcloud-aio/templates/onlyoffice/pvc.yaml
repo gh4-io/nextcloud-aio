@@ -1,4 +1,5 @@
-{{- if and .Values.onlyOffice.enabled .Values.onlyOffice.persistence.enabled }}
+{{- if .Values.onlyOffice.enabled }} 
+{{- if .Values.onlyOffice.persistence.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -28,4 +29,5 @@ spec:
   dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.onlyOffice.persistence.dataSource "context" $) | nindent 4 }}
   {{- end }}
   {{- include "common.storage.class" (dict "persistence" .Values.onlyOffice.persistence "global" .Values.global) | nindent 2 }}
+{{- end -}}
 {{- end -}}
