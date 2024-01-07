@@ -67,7 +67,7 @@ spec:
               protocol: TCP
             - name: https
               containerPort: {{ .Values.web.containerPorts.https }}
-              protocol: UDP
+              protocol: TCP
           volumeMounts:
             - mountPath: /var/www/html
               name: nextcloud-aio-nextcloud
