@@ -1,0 +1,61 @@
+{{- /*
+Copyright VMware, Inc.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{- if .Values.web.ingress.enabled }}
+apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
+kind: Ingress
+metadata:
+  name: {{ template "nextcloud-aio.web.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-web
+    app.kubernetes.io/component: ingress
+  {{- if or .Values.web.ingress.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" ( dict "values" ( list .Values.web.ingress.annotations .Values.commonAnnotations ) "context" . ) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and .Values.web.ingress.ingressClassName (eq "true" (include "common.ingress.supportsIngressClassname" .)) }}
+  ingressClassName: {{ .Values.web.ingress.ingressClassName | quote }}
+  {{- end }}
+  rules:
+    {{- if .Values.web.ingress.hostname }}
+    - host: {{ .Values.web.ingress.hostname }}
+      http:
+        paths:
+          {{- if .Values.web.ingress.extraPaths }}
+          {{- toYaml .Values.web.ingress.extraPaths | nindent 10 }}
+          {{- end }}
+          - path: {{ .Values.web.ingress.path }}
+            {{- if eq "true" (include "common.ingress.supportsPathType" .) }}
+            pathType: {{ .Values.web.ingress.pathType }}
+            {{- end }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (include "nextcloud-aio.web.fullname" .) "servicePort" "http" "context" $)  | nindent 14 }}
+    {{- end }}
+    {{- range .Values.web.ingress.extraHosts }}
+    - host: {{ .name | quote }}
+      http:
+        paths:
+          - path: {{ default "/" .path }}
+            {{- if eq "true" (include "common.ingress.supportsPathType" $) }}
+            pathType: {{ default "ImplementationSpecific" .pathType }}
+            {{- end }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (include "nextcloud-aio.web.fullname" $) "servicePort" "http" "context" $) | nindent 14 }}
+    {{- end }}
+    {{- if .Values.web.ingress.extraRules }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.web.ingress.extraRules "context" $) | nindent 4 }}
+    {{- end }}
+  {{- if or (and .Values.web.ingress.tls (or (include "common.ingress.certManagerRequest" ( dict "annotations" .Values.web.ingress.annotations )) .Values.web.ingress.selfSigned)) .Values.web.ingress.extraTls }}
+  tls:
+    {{- if and .Values.web.ingress.tls (or (include "common.ingress.certManagerRequest" ( dict "annotations" .Values.web.ingress.annotations )) .Values.web.ingress.selfSigned) }}
+    - hosts:
+        - {{ .Values.web.ingress.hostname | quote }}
+      secretName: {{ printf "%s-tls" .Values.web.ingress.hostname }}
+    {{- end }}
+    {{- if .Values.web.ingress.extraTls }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.web.ingress.extraTls "context" $) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}
