@@ -74,7 +74,7 @@ spec:
               readOnly: true
             - mountPath: /mnt/data
               name: nextcloud-aio-web
-      terminationGracePeriodSeconds: 600
+      terminationGracePeriodSeconds: 10
       volumes:
         - name: nextcloud-aio-nextcloud
           persistentVolumeClaim:

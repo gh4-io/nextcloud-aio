@@ -1,6 +1,6 @@
 name: nextcloud-aio
 description: A generated Helm Chart for Nextcloud AIO
-version: 0.0.23
+version: 0.0.24
 annotations:
   category: Infrastructure
   licenses: Apache-2.0
