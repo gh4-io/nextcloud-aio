@@ -32,15 +32,24 @@ spec:
       containers:
         - env:
             - name: INTERNAL_SECRET
-              value: "{{ .Values.talk.auth.internal }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.talk.secretName" . }}
+                  key: internal
             - name: NC_DOMAIN
               value: "{{ .Values.nextcloud.domain }}"
             - name: SIGNALING_SECRET
-              value: "{{ .Values.talk.auth.signaling }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.talk.secretName" . }}
+                  key: signaling
             - name: TALK_PORT
               value: "{{ .Values.talk.containerPorts.talk }}"
             - name: TURN_SECRET
-              value: "{{ .Values.talk.auth.turn }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.talk.secretName" . }}
+                  key: turn
             - name: TZ
               value: "{{ include "nextcloud-aio.timezone" . }}"
           image: {{ template "nextcloud-aio.talk.image" . }}

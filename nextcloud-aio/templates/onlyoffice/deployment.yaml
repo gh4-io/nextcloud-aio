@@ -46,7 +46,10 @@ spec:
             - name: JWT_HEADER
               value: AuthorizationJwt
             - name: JWT_SECRET
-              value: "{{ .Values.onlyOffice.auth.password }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.onlyOffice.secretName" . }}
+                  key: onlyOffice-password
             - name: TZ
               value: "{{ include "nextcloud-aio.timezone" . }}"
           image: {{ template "nextcloud-aio.onlyOffice.image" . }}

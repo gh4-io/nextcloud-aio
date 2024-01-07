@@ -65,7 +65,10 @@ spec:
             - name: SMTP_NAME
               value: "{{ .Values.nextcloud.mail.stmp.name }}"
             - name: SMTP_PASSWORD
-              value: "{{ .Values.nextcloud.mail.stmp.password }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.nextcloud.secretName" . }}
+                  key: smtp-password
             - name: MAIL_FROM_ADDRESS
               value: "{{ .Values.nextcloud.mail.sender }}"
             - name: MAIL_DOMAIN

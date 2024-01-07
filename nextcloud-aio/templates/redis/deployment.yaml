@@ -40,7 +40,10 @@ spec:
       containers:
         - env:
             - name: REDIS_HOST_PASSWORD
-              value: {{ required "Required redis.auth.password needed!" (.Values.redis.auth.password | quote) }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.redis.secretName" . }}
+                  key: redis-password
             - name: TZ
               value: "{{ include "nextcloud-aio.timezone" . }}"
           image: {{ template "nextcloud-aio.redis.image" . }}
@@ -53,6 +56,26 @@ spec:
           volumeMounts:
             - mountPath: /data
               name: nextcloud-aio-redis
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - '-c'
+                - redis-cli --raw -a $REDIS_HOST_PASSWORD incr ping
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - '-c'
+                - redis-cli --raw -a $REDIS_HOST_PASSWORD incr ping
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
       volumes:
         - name: nextcloud-aio-redis
           persistentVolumeClaim:

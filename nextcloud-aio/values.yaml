@@ -502,8 +502,8 @@ talk:
 
   auth: 
     internal: ""
-    signaling: ""
     recording: ""
+    signaling: ""
     turn: ""
 
   podLabels: {}
@@ -563,7 +563,7 @@ imaginary:
 
   image:
     registry: docker.io
-    repository: nextcloud/aio-fulltextsearch
+    repository: nextcloud/aio-imaginary
     tag: 20231220_153200-latest
     digest: ""
     pullPolicy: IfNotPresent

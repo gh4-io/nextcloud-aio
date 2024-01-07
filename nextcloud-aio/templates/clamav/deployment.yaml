@@ -58,6 +58,20 @@ spec:
               value: "{{ include "nextcloud-aio.timezone" . }}"
           image: {{ template "nextcloud-aio.clamav.image" . }}
           name: clamav
+          livenessProbe:
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: {{ .Values.clamav.containerPorts.clamav }}
+          readinessProbe:
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: {{ .Values.clamav.containerPorts.clamav }}
+            timeoutSeconds: 1
+            timeoutSeconds: 1
           ports:
             - name: clamav
               containerPort: {{ .Values.clamav.containerPorts.clamav }}

@@ -63,7 +63,10 @@ spec:
             - name: POSTGRES_DB
               value: {{ .Values.db.auth.database }}
             - name: POSTGRES_PASSWORD
-              value: "{{ .Values.db.auth.password }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.db.secretName" . }}
+                  key: db-password
             - name: POSTGRES_USER
               value: {{ .Values.db.auth.user }}
             - name: TZ
