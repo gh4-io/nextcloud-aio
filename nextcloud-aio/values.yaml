@@ -67,19 +67,26 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-
+## @param appsAllowed
+##
 appsAllowed: ""
-
+## @param additionalTrushProxy
+##
 additionalTrustedProxy: ""
-
+## @param additionalAPKS
+##
 additionalAPKS: imagemagick
-
+## @param additionalPHPExtensions  This allows to add additional php extensions to the Nextcloud container permanently. Default is imagick but can be overwritten by modifying this value.
+##
 additionalPHPExtensions: imagemagick
-
+## @param updateAppsOnStartup  When setting to 'true' it will automatically update all installed Nextcloud apps upon container startup on saturdays.
+##
 updateAppsOnStartup: "false"
-
+## @param removeDisabledApps  keeps Nextcloud apps that are disabled via their switch and not uninstall them if they should be installed in Nextcloud.
+##
 removeDisabledApps: "false"
-
+## @param startupApps  Allows to modify the Nextcloud apps that are installed on starting AIO the first time
+##
 startupApps: "deck twofactor_totp tasks calendar contacts notes" 
 
 
@@ -125,7 +132,8 @@ web:
       https: 443
     annotations: {}
     extraPorts: []
-
+  ## @param mxSize  This needs to be an integer and in sync with NEXTCLOUD_UPLOAD_LIMIT
+  ##
   maxSize: "10737418240"
 
   ingress: {}
