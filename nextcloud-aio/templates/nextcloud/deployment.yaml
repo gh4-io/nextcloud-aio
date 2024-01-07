@@ -74,7 +74,10 @@ spec:
             - name: MAIL_DOMAIN
               value: "{{ .Values.nextcloud.mail.domain }}"
             - name: SUBSCRIPTION_KEY
-              value: "{{ .Values.nextcloud.subscriptionKey }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.nextcloud.secretName" . }}
+                  key: subscriptionKey
             - name: APPS_ALLOWLIST
               value: "{{ .Values.appsAllowed }}"
             - name: ADDITIONAL_TRUSTED_PROXY
@@ -88,8 +91,8 @@ spec:
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "nextcloud-aio.nextcloud.secretName" . | quote }}
-                  key: {{ required "Nextcloud nextcloud.auth.password needed!" (include "nextcloud-aio.nextcloud.passwordKey" . | quote) }}
+                  name: {{ include "nextcloud-aio.nextcloud.secretName" . }}
+                  key: {{ include "nextcloud-aio.nextcloud.passwordKey" . }}
             - name: ADMIN_USER
               value: "{{ .Values.nextcloud.auth.user }}"
             - name: APACHE_PORT
@@ -107,7 +110,10 @@ spec:
             - name: FULLTEXTSEARCH_HOST
               value: {{ include "nextcloud-aio.fullTextSearch.fullname" . }}
             - name: FULLTEXTSEARCH_PASSWORD
-              value: "{{ .Values.fullTextSearch.auth.password }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.fullTextSearch.secretName" . }}
+                  key: fulltextsearch-password
             - name: IMAGINARY_ENABLED
               value: {{ include "nextcloud-aio.imaginary.enabled" . | quote }}
             - name: IMAGINARY_HOST
@@ -123,7 +129,10 @@ spec:
             - name: ONLYOFFICE_HOST
               value: {{ include "nextcloud-aio.onlyOffice.fullname" . }}
             - name: ONLYOFFICE_SECRET
-              value: {{ .Values.onlyOffice.auth.password }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.onlyOffice.secretName" . }}
+                  key: onlyoffice-password
             - name: OVERWRITEHOST
               value: {{ .Values.nextcloud.domain }}
             - name: OVERWRITEPROTOCOL
@@ -139,19 +148,31 @@ spec:
             - name: POSTGRES_HOST
               value: {{ include "nextcloud-aio.db.fullname" . }}
             - name: POSTGRES_PASSWORD
-              value: {{ .Values.db.auth.password }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.db.secretName" . }}
+                  key: db-password
             - name: POSTGRES_USER
               value: {{ .Values.db.auth.user }}
             - name: RECORDING_SECRET
-              value: {{ .Values.talk.auth.recording }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.talk.secretName" . }}
+                  key: recording
             - name: REDIS_HOST
               value: {{ include "nextcloud-aio.redis.fullname" . }}
             - name: REDIS_HOST_PASSWORD
-              value: {{ .Values.redis.auth.password }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.redis.secretName" . }}
+                  key: redis-password
             - name: REMOVE_DISABLED_APPS
               value: {{ include "nextcloud-aio.removeDisabledApps" . }}
             - name: SIGNALING_SECRET 
-              value: {{ .Values.talk.auth.signaling }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.talk.secretName" . }}
+                  key: signaling
             - name: STARTUP_APPS
               value: {{ .Values.startupApps }}
             - name: TALK_ENABLED
@@ -165,7 +186,10 @@ spec:
             - name: TRUSTED_CACERTS_DIR
               value: {{ default .Values.nextcloud.certs.trustedCAcertDir "/usr/local/share/ca-certificates" }}
             - name: TURN_SECRET
-              value: "{{ .Values.talk.auth.turn }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.talk.secretName" . }}
+                  key: turn
             - name: TZ
               value: "{{ include "nextcloud-aio.timezone" . }}"
             - name: UPDATE_NEXTCLOUD_APPS
