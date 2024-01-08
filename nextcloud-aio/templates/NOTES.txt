@@ -7,6 +7,8 @@ APP VERSION: {{ .Chart.AppVersion  }}
 
 To access Nextcloud from outside the cluster execute the following commands:
 
+{{- if false }}
+
 {{- if .Values.web.ingress.enabled }}
 
   You should be able to access your new Nextcloud installation through
@@ -42,4 +44,6 @@ To access Nextcloud from outside the cluster execute the following commands:
 
 {{- include "common.warnings.rollingTag" .Values.nextcloud.image }}
 {{- include "common.warnings.rollingTag" .Values.web.image }}
+
+{{- end -}}
 
