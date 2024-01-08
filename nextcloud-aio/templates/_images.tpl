@@ -1,4 +1,52 @@
 {{/*
+Return the proper Docker Image Tag evaluating values as templates
+{{ include "nextcloud-aio.images.tag" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global ) }}
+*/}}
+{{- define "nextcloud-aio.images.tag" -}}
+{{- $tagName := .imageRoot.tag | toString -}}
+{{- if .global }}
+    {{- if .global.imageTag }}
+     {{- $tagName = .global.imageTag -}}
+    {{- end -}}
+{{- end -}}
+{{- if $tagName }}
+  {{- printf "%s" $tagName -}}
+{{- end -}}
+{{- end -}}
+
+{{/* vim: set filetype=mustache: */}}
+{{/*
+Return the proper image name
+{{ include "common.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global ) }}
+*/}}
+{{- define "nextcloud-aio.images.image" -}}
+{{- $registryName := .imageRoot.registry -}}
+{{- $repositoryName := .imageRoot.repository -}}
+{{- $separator := ":" -}}
+{{- $termination := .imageRoot.tag | toString -}}
+{{- if .imageRoot.digest }}
+    {{- $separator = "@" -}}
+    {{- $termination = .imageRoot.digest | toString -}}
+{{- end -}}
+{{- if .global }}
+    {{- if .global.imageRegistry }}
+     {{- $registryName = .global.imageRegistry -}}
+    {{- end -}}
+    {{- if .global.imageTag }}
+     {{- $termination = .global.imageTag -}}
+    {{- end -}}
+    {{- if .global.imageDigest }}
+     {{- $registryName = .global.imageDigest -}}
+    {{- end -}}
+{{- end -}}
+{{- if $registryName }}
+    {{- printf "%s/%s%s%s" $registryName $repositoryName $separator $termination -}}
+{{- else -}}
+    {{- printf "%s%s%s"  $repositoryName $separator $termination -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return the proper Nextcloud AIO server image name
 */}}
 {{- define "nextcloud-aio.nextcloud.image" -}}

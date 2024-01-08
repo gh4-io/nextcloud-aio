@@ -52,6 +52,30 @@ The command removes all the Kubernetes components associated with the chart and 
 | ------------------------------------- | ------------------------------------------------------------- | ------------- |
 |                                       |                                                               |               |
 
+
+## Load Balancer
+
+To use the web service as a load balancer to ..
+
+*example yaml...*  
+
+```yaml
+service:
+    enabled: true
+    type: LoadBalancer
+    ports: 
+      http: 80
+      https: 443
+    nodePorts:
+      http: ""
+      https: ""
+    loadBalancerIP: 10.0.0.111
+    annotations: {}
+    extraPorts: []
+
+```
+
+
 ## Troubleshooting
 
 ...

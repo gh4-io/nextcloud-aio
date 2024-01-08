@@ -1,1 +1,45 @@
 1. Get the application URL by running these commands:
+CHART NAME: {{ .Chart.Name  }}
+CHART VERSION: {{ .Chart.Version  }}
+APP VERSION: {{ .Chart.AppVersion  }}
+
+** Please be patient while the chart is being deployed **
+
+To access Nextcloud from outside the cluster execute the following commands:
+
+{{- if .Values.web.ingress.enabled }}
+
+  You should be able to access your new Nextcloud installation through
+
+  {{ ternary "https" "http" .Values.web.ingress.tls }}://{{ .Values.web.ingress.hostname }}
+
+{{- else if contains "LoadBalancer" .Values.web.service.type }}
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: 'kubectl get svc --namespace {{ include "common.names.namespace" . }} -w {{ template "nextcloud-aio.web.fullname" . }}'
+
+{{- $port:=.Values.web.service.ports.http | toString }}
+
+    export SERVICE_IP=$(kubectl get svc --namespace {{ include "common.names.namespace" . }} {{ template "common.names.fullname" . }} --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
+    echo "Nextcloud URL: http://$SERVICE_IP{{- if ne $port "80" }}:{{ .Values.web.service.ports.http }}{{ end }}/"
+
+{{- else if contains "ClusterIP"  .Values.web.service.type }}
+
+    echo "Nextcloud URL: http://127.0.0.1:9090/"
+    kubectl port-forward --namespace {{ include "common.names.namespace" . }} svc/{{ template "common.names.fullname" . }} 9090:{{ .Values.web.service.ports.http }}
+
+{{- else if contains "NodePort" .Values.web.service.type }}
+
+    export NODE_PORT=$(kubectl get --namespace {{ include "common.names.namespace" . }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "common.names.fullname" . }})
+    export NODE_IP=$(kubectl get nodes --namespace {{ include "common.names.namespace" . }} -o jsonpath="{.items[0].status.addresses[0].address}")
+    echo "Nextcloud URL: http://$NODE_IP:$NODE_PORT/"
+
+{{- end }}
+
+
+
+
+
+{{- include "common.warnings.rollingTag" .Values.nextcloud.image }}
+{{- include "common.warnings.rollingTag" .Values.web.image }}
+
