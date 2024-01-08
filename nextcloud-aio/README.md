@@ -38,26 +38,56 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Global parameters
 
-| Name                                  | Description                                                   | Value         |
-| ------------------------------------- | ------------------------------------------------------------- | ------------- |
-| `global.imageRegistry`                | Global Docker image registry                                  | `""`          |
-| `global.imagePullSecrets`             | Global Docker registry secret names as an array               | `[]`          |
-| `global.storageClass`                 | Global StorageClass for Persistent Volume(s)                  | `""`          |
-| `global.tz`                           | Global timezone setting. E.g. "UTC"                           | `""`          |
 
+| Name                      | Description                                     | Value |
+| --------------------------- | ------------------------------------------------- | ------- |
+| `global.imageRegistry`    | Global Docker image registry                    | `""`  |
+| `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]`  |
+| `global.storageClass`     | Global StorageClass for Persistent Volume(s)    | `""`  |
+| `global.tz`               | Global timezone setting. E.g. "UTC"             | `""`  |
 
 ### Common parameters
 
-| Name                                  | Description                                                   | Value         |
-| ------------------------------------- | ------------------------------------------------------------- | ------------- |
-|                                       |                                                               |               |
+#### Image
 
+
+| Name                    | Description                                                                                     | Value                   |
+| ------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------- |
+| common.image.registry   | Application registry, will override Global and Chart registry entry.                            | “”                    |
+| common.image.repository | Application image repository, will override Global and Chart repository entries.                | nextcloud/aio-nextcloud |
+| common.image.tag        | Application image tag, will overrideGlobal and Chart tag entries.                               | “”                    |
+| common.image.digest     | Image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | “”                    |
+| common.image.pullPolicy | Application image pull policy                                                                   | “”                    |
+| common.image.pullSecret | Specify docker-registry secret names as an array                                                | “”                    |
+
+#### Persistance
+
+
+
+#### Service
+
+
+
+#### Ingress
+
+### Nextcloud Server Parameters
+
+### Database Parameters
+
+### Frontend/Apache Parameters
+
+> *As of version 7.9.1*
+> **Note:** Nextcloud AIO during startup will be expecting to ping hostname `nextcloud-aio-apache`.
+> Changing your hostname/deployment will break the server startup. If using CoreDNS you
+> can add a `rewrite name` rule to your CoreDNS `config.yaml`.
+
+### Redis Parameters
 
 ## Load Balancer
 
 To use the web service as a load balancer to ..
 
-*example yaml...*  
+*example yaml...*
 
 ```yaml
 service:
@@ -74,7 +104,6 @@ service:
     extraPorts: []
 
 ```
-
 
 ## Troubleshooting
 
