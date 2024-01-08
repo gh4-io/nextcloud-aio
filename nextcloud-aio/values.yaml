@@ -81,7 +81,7 @@ additionalTrustedProxy: ""
 additionalAPKS: imagemagick
 ## @param additionalPHPExtensions  This allows to add additional php extensions to the Nextcloud container permanently. Default is imagick but can be overwritten by modifying this value.
 ##
-additionalPHPExtensions: imagemagick
+additionalPHPExtensions: imagick
 ## @param updateAppsOnStartup  When setting to 'true' it will automatically update all installed Nextcloud apps upon container startup on saturdays.
 ##
 updateAppsOnStartup: "false"
@@ -101,7 +101,7 @@ web:
   image:
     registry: docker.io
     repository: nextcloud/aio-apache
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -146,9 +146,9 @@ nextcloud:
   replicaCount: 1
 
   image:
-    registry: docker.io
+    registry: ""
     repository: nextcloud/aio-nextcloud
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -250,9 +250,9 @@ db:
   replicaCount: 3
 
   image:
-    registry: docker.io
+    registry: ""
     repository: nextcloud/aio-postgresql
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -322,9 +322,9 @@ clamav:
   replicaCount: 1
 
   image:
-    registry: docker.io
+    registry: ""
     repository: nextcloud/aio-clamav
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -371,9 +371,9 @@ collabora:
   replicaCount: 1
 
   image:
-    registry: docker.io
+    registry: ""
     repository: nextcloud/aio-collabora
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -385,9 +385,10 @@ collabora:
   nameOverride: ""
 
   fullnameOverride: ""
-
-  dictionaries: de_DE en_GB en_US es_ES fr_FR it nl pt_BR pt_PT ru
-
+  ## @param nextcloud.dictionaries Enabled dictionaries for collabora in order
+  ##
+  dictionaries: en_US de_DE en_GB es_ES fr_FR it nl pt_BR pt_PT ru
+  ## @param nextcloud.extraParams.seccomp Changing the value to false allows to disable the seccomp feature of the Collabora container.
   extraParams:
     seccomp: "true"
 
@@ -404,7 +405,7 @@ collabora:
 
 onlyOffice: 
 
-  enabled: true
+  enabled: false
 
   replicaCount: 1
 
@@ -457,9 +458,9 @@ redis:
   replicaCount: 1
 
   image:
-    registry: docker.io
+    registry: ""
     repository: nextcloud/aio-redis
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -499,7 +500,7 @@ redis:
     extraPorts: []
 
 talk: 
-  enabled: true
+  enabled: false
 
   replicaCount: 1
 
@@ -535,7 +536,7 @@ talk:
 
   recording:
 
-    enabled: true
+    enabled: false
 
     replicaCount: 1
 
@@ -573,9 +574,9 @@ imaginary:
   replicaCount: 1
 
   image:
-    registry: docker.io
+    registry: ""
     repository: nextcloud/aio-imaginary
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -597,14 +598,14 @@ imaginary:
 
 fullTextSearch:
 
-  enabled: true
+  enabled: false
 
   replicaCount: 1
 
   image:
-    registry: docker.io
+    registry: ""
     repository: nextcloud/aio-fulltextsearch
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -629,14 +630,14 @@ fullTextSearch:
 
 notifyPush:
 
-  enabled: true
+  enabled: false
 
   replicaCount: 1
 
   image:
-    registry: docker.io
+    registry: ""
     repository: nextcloud/aio-notify-push
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -658,7 +659,7 @@ notifyPush:
 
 elasticSearch: 
 
-  enabled: true
+  enabled: false
   persistence:
     enabled: true
     size: 1Gi

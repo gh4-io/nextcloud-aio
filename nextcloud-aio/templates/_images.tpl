@@ -23,21 +23,25 @@ Return the proper image name
 {{- $registryName := .imageRoot.registry -}}
 {{- $repositoryName := .imageRoot.repository -}}
 {{- $separator := ":" -}}
-{{- $termination := .imageRoot.tag | toString -}}
+{{- $termination := .Chart.Annotations.nextcloud-aioTag -}}
+{{- if .global }}
+    {{- if .global.imageRegistry }}
+        {{- $registryName = .global.imageRegistry -}}
+    {{- end -}}
+    {{- if .global.imageTag }}
+        {{- $termination = .global.imageTag -}}
+    {{- end -}}
+    {{- if .global.imageDigest }}
+        {{- $separator = "@" -}}
+        {{- $registryName = .global.imageDigest -}}
+    {{- end -}}
+{{- end -}}
+{{- if .imageRoot.tag -}}
+    {{- $termination := .imageRoot.tag | toString -}}
+{{- end -}}
 {{- if .imageRoot.digest }}
     {{- $separator = "@" -}}
     {{- $termination = .imageRoot.digest | toString -}}
-{{- end -}}
-{{- if .global }}
-    {{- if .global.imageRegistry }}
-     {{- $registryName = .global.imageRegistry -}}
-    {{- end -}}
-    {{- if .global.imageTag }}
-     {{- $termination = .global.imageTag -}}
-    {{- end -}}
-    {{- if .global.imageDigest }}
-     {{- $registryName = .global.imageDigest -}}
-    {{- end -}}
 {{- end -}}
 {{- if $registryName }}
     {{- printf "%s/%s%s%s" $registryName $repositoryName $separator $termination -}}
