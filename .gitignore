@@ -13,3 +13,4 @@ custom.*
 .vscode/
 # Custom Objects
 custom.*
+.gitignore

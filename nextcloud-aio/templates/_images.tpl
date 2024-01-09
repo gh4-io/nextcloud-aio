@@ -23,9 +23,7 @@ Return the proper image name
 {{- $registryName := .imageRoot.registry -}}
 {{- $repositoryName := .imageRoot.repository -}}
 {{- $separator := ":" -}}
-{{- range .Chart.Annotations }}
-    {{- $termination := .nextcloudaioTag | toString -}}
-{{- end }}
+{{- $termination := "latest" | toString -}}
 {{- if .global }}
     {{- if .global.imageRegistry }}
         {{- $registryName = .global.imageRegistry -}}
