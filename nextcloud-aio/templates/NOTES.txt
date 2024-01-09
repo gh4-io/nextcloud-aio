@@ -41,9 +41,9 @@ To access Nextcloud from outside the cluster execute the following commands:
 
 
 
+{{- end -}}
 
 {{- include "common.warnings.rollingTag" .Values.nextcloud.image }}
 {{- include "common.warnings.rollingTag" .Values.web.image }}
 
-{{- end -}}
 

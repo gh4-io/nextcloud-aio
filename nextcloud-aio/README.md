@@ -48,27 +48,30 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Common parameters
 
-#### Image
+##### Replicas
 
 
-| Name                    | Description                                                                                     | Value                   |
-| ------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------- |
-| common.image.registry   | Application registry, will override Global and Chart registry entry.                            | “”                    |
-| common.image.repository | Application image repository, will override Global and Chart repository entries.                | nextcloud/aio-nextcloud |
-| common.image.tag        | Application image tag, will overrideGlobal and Chart tag entries.                               | “”                    |
-| common.image.digest     | Image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | “”                    |
-| common.image.pullPolicy | Application image pull policy                                                                   | “”                    |
-| common.image.pullSecret | Specify docker-registry secret names as an array                                                | “”                    |
+| Name                     | Description                              | Value       |
+| -------------------------- | ------------------------------------------ | ------------- |
+| `nextcloud.replicaCount` | Number of pod replicas will be generated | `1` `[int]` |
 
-#### Persistance
+##### Image
 
 
+| Name                         | Description                                                                                     | Value                     |
+| ------------------------------ | ------------------------------------------------------------------------------------------------- | --------------------------- |
+| `nextcloud.image.registry`   | Application registry, will override Global and Chart registry entry.                            | `“”`                    |
+| `nextcloud.image.repository` | Application image repository, will override Global and Chart repository entries.                | `nextcloud/aio-nextcloud` |
+| `nextcloud.image.tag`        | Application image tag, will overrideGlobal and Chart tag entries.                               | `“”`                    |
+| `nextcloud.image.digest`     | Image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `“”`                    |
+| `nextcloud.image.pullPolicy` | Application image pull policy                                                                   | `“”`                    |
+| `nextcloud.image.pullSecret` | Specify docker-registry secret names as an array                                                | `“”`                    |
 
-#### Service
+##### Persistance
 
+##### Service
 
-
-#### Ingress
+##### Ingress
 
 ### Nextcloud Server Parameters
 
