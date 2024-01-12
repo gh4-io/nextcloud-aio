@@ -10,6 +10,36 @@ entries:
       nextcloudaioVersion: v7.9.1
     apiVersion: v2
     appVersion: v7.9.1
+    created: "2024-01-12T18:08:24.493551792Z"
+    dependencies:
+    - name: common
+      repository: ""
+      version: 2.x.x
+    description: A generated Helm Chart for Nextcloud AIO
+    digest: c02049c1de4ecf30952c5a4fbc0ea8573f4b048cf695e58136ebddc0eda2469a
+    home: https://github.com/nextcloud/all-in-one/tree/main/nextcloud-aio-helm-chart
+    icon: https://raw.githubusercontent.com/nextcloud/promo/master/nextcloud-icon.png
+    keywords:
+    - latest
+    - nextcloud
+    - helm-chart
+    - open-source
+    - cloud
+    name: nextcloud-aio
+    sources:
+    - https://github.com/nextcloud/all-in-one/tree/v7.9.1
+    urls:
+    - https://github.com/gh4-io/nextcloud-aio/releases/download/nextcloud-aio-0.0.36/nextcloud-aio-0.0.36.tgz
+    version: 0.0.36
+  - annotations:
+      category: Infrastructure
+      licenses: Apache-2.0
+      nextcloudHub: "6"
+      nextcloudVersion: v27.1.5
+      nextcloudaioTag: 20231220_153200-latest
+      nextcloudaioVersion: v7.9.1
+    apiVersion: v2
+    appVersion: v7.9.1
     created: "2024-01-09T02:57:40.884797457Z"
     dependencies:
     - name: common
@@ -990,4 +1020,4 @@ entries:
     urls:
     - nextcloud-aio-0.0.1.tgz
     version: 0.0.1
-generated: "2024-01-09T02:57:40.88527989Z"
+generated: "2024-01-12T18:08:24.493799624Z"
