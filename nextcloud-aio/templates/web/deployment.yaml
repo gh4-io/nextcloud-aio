@@ -74,6 +74,12 @@ spec:
               readOnly: true
             - mountPath: /mnt/data
               name: nextcloud-aio-web
+          {{- if .Values.web.cert }}
+          {{- if .Values.web.cert.existingSSL }}
+            - name: nextcloud-aio-web-ssl
+              mountPath: /mnt/data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/{{ .Values.nextcloud.domain }}
+          {{- end }}
+          {{- end }}
       terminationGracePeriodSeconds: 10
       volumes:
         - name: nextcloud-aio-nextcloud
@@ -82,6 +88,15 @@ spec:
         - name: nextcloud-aio-web
           persistentVolumeClaim:
             claimName: nextcloud-aio-web
+        {{- if .Values.web.cert }}
+        {{- if .Values.web.cert.existingSSL }}
+        - name: nextcloud-aio-web-ssl
+          _type: hostPath
+          hostPath:
+            type: Directory
+            path: {{ .Values.web.cert.existingSSL }}
+        {{- end }}
+        {{- end }}
       {{- if .Values.affinity }}
       affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
       {{- end }}

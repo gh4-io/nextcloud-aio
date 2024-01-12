@@ -133,3 +133,10 @@ Return the proper Nextcloud AIO notify image name
 {{- define "nextcloud-aio.notifyPush.image" -}}
 {{ include "nextcloud-aio.images.image" (dict "imageRoot" .Values.notifyPush.image "global" .Values.global) }}
 {{- end -}}
+
+{{/*
+Return the proper Nextcloud AIO collabora image name
+*/}}
+{{- define "nextcloud-aio.collabora.image" -}}
+{{ include "nextcloud-aio.images.image" (dict "imageRoot" .Values.collabora.image "global" .Values.global) }}
+{{- end -}}

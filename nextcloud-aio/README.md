@@ -39,7 +39,7 @@ The command removes all the Kubernetes components associated with the chart and 
 ### Global parameters
 
 
-| Name                      | Description                                     | Value |
+| <div style="maxWidth:40px">Name</div>  | Description                                     | <div style="width:90px">Value</div> |
 | --------------------------- | ------------------------------------------------- | ------- |
 | `global.imageRegistry`    | Global Docker image registry                    | `""`  |
 | `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]`  |
@@ -53,7 +53,7 @@ The command removes all the Kubernetes components associated with the chart and 
 
 | Name                     | Description                              | Value       |
 | -------------------------- | ------------------------------------------ | ------------- |
-| `nextcloud.replicaCount` | Number of pod replicas will be generated | `1` `[int]` |
+| <div style="Width:80px">`nextcloud.replicaCount`</div> | Number of pod replicas will be generated | `1` `[int]` |
 
 ##### Image
 
