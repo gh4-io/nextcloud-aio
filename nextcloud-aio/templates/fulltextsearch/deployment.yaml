@@ -71,6 +71,10 @@ spec:
             - name: fulltextsearch
               containerPort: {{ .Values.fullTextSearch.containerPorts.fullTextSearch }}
               protocol: TCP
+          securityContext:
+            capabilities:
+              drop:
+                - NET_RAW
           volumeMounts:
             - mountPath: /usr/share/elasticsearch/data
               name: nextcloud-aio-elasticsearch

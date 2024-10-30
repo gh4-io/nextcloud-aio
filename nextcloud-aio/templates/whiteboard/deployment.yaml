@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.whiteboard.image "chart" .Chart ) ) }}
+  {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/part-of: nextcloud-aio-nextcloud
+    app.kubernetes.io/component: server
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+  name: {{ include "nextcloud-aio.nextcloud.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+spec:
+  replicas: {{ .Values.whiteboard.replicaCount }}
+  {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.whiteboard.podLabels .Values.commonLabels $versionLabel ) "context" . ) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
+      app.kubernetes.io/part-of: nextcloud-aio-nextcloud
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.whiteboard.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.whiteboard.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
+        app.kubernetes.io/part-of: nextcloud-aio
+        app.kubernetes.io/component: whiteboard
+    spec:
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      containers:
+        - env:
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.whiteboard.secretName" . }}
+                  key: secret
+            - name: NEXTCLOUD_URL
+              value: "https://{{ .Values.whiteboard.domain }}"
+            {{- if .Values.redis.enabled }}
+            - name: REDIS_HOST
+              value: {{ include "nextcloud-aio.redis.fullname" . }}
+            - name: REDIS_HOST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nextcloud-aio.redis.secretName" . }}
+                  key: redis-password
+            {{- end }}
+            - name: TZ
+              value: {{ include "nextcloud-aio.timezone" . | quote }}
+          image: {{ template "nextcloud-aio.whiteboard.image" . }}
+          imagePullPolicy: {{ .Values.whiteboard.image.pullPolicy }}
+          name: whiteboard
+          ports:
+              - name: http
+                containerPort: {{ .Values.whiteboard.containerPorts.http }}
+                protocol: TCP
+          securityContext:
+              capabilities:
+                drop:
+                  - NET_RAW
+    terminationGracePeriodSeconds: 600
+      

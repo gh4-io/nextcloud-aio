@@ -140,3 +140,10 @@ Return the proper Nextcloud AIO collabora image name
 {{- define "nextcloud-aio.collabora.image" -}}
 {{ include "nextcloud-aio.images.image" (dict "imageRoot" .Values.collabora.image "global" .Values.global) }}
 {{- end -}}
+
+{{/*
+Return the proper Nextcloud AIO whiteboard image name
+*/}}
+{{- define "nextcloud-aio.whiteboard.image" -}}
+{{ include "nextcloud-aio.images.image" (dict "imageRoot" .Values.whiteboard.image "global" .Values.global) }}
+{{- end -}}

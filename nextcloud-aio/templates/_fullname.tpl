@@ -73,3 +73,7 @@ If release name contains chart name it will be used as a full name.
 {{- define "nextcloud-aio.recording.fullname" -}}
 {{ include "nextcloud-aio.names.dependency.fullname" (dict "chartName" "talk-recorder" "chartValues" .Values.talk.recording "context" $) }}
 {{- end }}
+
+{{- define "nextcloud-aio.whiteboard.fullname" -}}
+{{ include "nextcloud-aio.names.dependency.fullname" (dict "chartName" "whiteboard" "chartValues" .Values.whiteboard "context" $) }}
+{{- end }}

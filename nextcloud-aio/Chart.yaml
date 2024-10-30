@@ -1,13 +1,13 @@
 name: nextcloud-aio
 description: A generated Helm Chart for Nextcloud AIO
-version: 0.0.36
+version: 0.0.37
 annotations:
   category: Infrastructure
   licenses: Apache-2.0
   nextcloudHub: "6"
   nextcloudVersion: "v27.1.5"
-  nextcloudaioVersion: "v7.9.1"
-  nextcloudaioTag: "20231220_153200-latest"
+  nextcloudaioVersion: "v9.7.0"
+  nextcloudaioTag: "20240925_080419"
 appVersion: v7.9.1
 apiVersion: v2
 keywords:
@@ -17,7 +17,7 @@ keywords:
   - open-source
   - cloud
 sources:
-  - https://github.com/nextcloud/all-in-one/tree/v7.9.1
+  - https://github.com/nextcloud/all-in-one/tree/v9.7.0
 home: https://github.com/nextcloud/all-in-one/tree/main/nextcloud-aio-helm-chart
 icon: https://raw.githubusercontent.com/nextcloud/promo/master/nextcloud-icon.png
 dependencies:
