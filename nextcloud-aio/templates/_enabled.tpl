@@ -146,3 +146,15 @@ Nextcloud enable major update install
 {{- print "no" }}
 {{- end -}}
 {{- end -}}
+
+
+{{/*
+Talk Whiteboard enabled
+*/}}
+{{- define "nextcloud-aio.whiteboard.enabled" -}}
+{{- if .Values.whitebaord.enabled -}}
+{{- print "yes" }}
+{{- else -}}
+{{- print "no" }}
+{{- end -}}
+{{- end -}}

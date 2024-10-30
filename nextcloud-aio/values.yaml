@@ -73,7 +73,7 @@ serviceAccount:
 ## @param appsAllowed
 ##
 appsAllowed: ""
-## @param additionalTrushProxy
+## @param additionalTrustedProxy
 ##
 additionalTrustedProxy: ""
 ## @param additionalAPKS
@@ -412,7 +412,7 @@ onlyOffice:
   image:
     registry: docker.io
     repository: nextcloud/aio-onlyoffice
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -507,7 +507,7 @@ talk:
   image:
     registry: docker.io
     repository: nextcloud/aio-talk
-    tag: 20231220_153200-latest
+    tag: ""
     digest: ""
     pullPolicy: IfNotPresent
     pullSecrets: []
@@ -543,7 +543,7 @@ talk:
     image:
       registry: docker.io
       repository: nextcloud/aio-talk-recording
-      tag: 20231220_153200-latest
+      tag: ""
       digest: ""
       pullPolicy: IfNotPresent
       pullSecrets: []
@@ -671,4 +671,32 @@ elasticSearch:
     whenScaled: Retain
     whenDeleted: Retain
 
+whiteboard:
 
+  enabled: false
+
+  auth:
+    secret: ""
+
+  image:
+    registry: ""
+    repository: nextcloud/aio-clamav
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  containerPorts:
+    http: 3002
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      http: 3002
+    annotations: {}
+    extraPorts: []
+
+  podLabels: {}
+
+  podAnnotations: {}

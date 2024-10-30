@@ -69,3 +69,10 @@ FullTextSearch credential secret name. Using Release.Name as it is used in subch
 {{- define "nextcloud-aio.fullTextSearch.secretName" -}}
 {{- coalesce .Values.fullTextSearch.auth.existingSecret (include "nextcloud-aio.fullTextSearch.fullname" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+whiteboard credential secret name. Using Release.Name as it is used in subcharts as well
+*/}}
+{{- define "nextcloud-aio.whiteboard.secretName" -}}
+{{- coalesce .Values.whiteboard.auth.existingSecret (include "nextcloud-aio.whiteboard.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
