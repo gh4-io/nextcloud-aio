@@ -51,16 +51,16 @@ spec:
             {{- end }}
             - name: TZ
               value: {{ include "nextcloud-aio.timezone" . | quote }}
-        image: {{ template "nextcloud-aio.whiteboard.image" . }}
-        imagePullPolicy: {{ .Values.whiteboard.image.pullPolicy }}
-        name: whiteboard
-        ports:
-            - name: http
-              containerPort: {{ .Values.whiteboard.containerPorts.http }}
-              protocol: TCP
-        securityContext:
-            capabilities:
-              drop:
-                - NET_RAW
-      terminationGracePeriodSeconds: 600
+          image: {{ template "nextcloud-aio.whiteboard.image" . }}
+          imagePullPolicy: {{ .Values.whiteboard.image.pullPolicy }}
+          name: whiteboard
+          ports:
+              - name: http
+                containerPort: {{ .Values.whiteboard.containerPorts.http }}
+                protocol: TCP
+          securityContext:
+              capabilities:
+                drop:
+                  - NET_RAW
+    terminationGracePeriodSeconds: 600
       
