@@ -62,5 +62,5 @@ spec:
               capabilities:
                 drop:
                   - NET_RAW
-    terminationGracePeriodSeconds: 600
+      terminationGracePeriodSeconds: 600
       
