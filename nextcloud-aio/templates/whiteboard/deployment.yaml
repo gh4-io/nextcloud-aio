@@ -4,7 +4,7 @@ metadata:
   {{- $versionLabel := dict "app.kubernetes.io/version" ( include "common.images.version" ( dict "imageRoot" .Values.whiteboard.image "chart" .Chart ) ) }}
   {{- $labels := include "common.tplvalues.merge" ( dict "values" ( list .Values.commonLabels $versionLabel ) "context" . ) }}
   labels: {{- include "common.labels.standard" ( dict "customLabels" $labels "context" $ ) | nindent 4 }}
-    app.kubernetes.io/part-of: nextcloud-aio-nextcloud
+    app.kubernetes.io/part-of: nextcloud-aio-whiteboard
     app.kubernetes.io/component: server
   {{- if .Values.commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
@@ -16,7 +16,7 @@ spec:
   {{- $podLabels := include "common.tplvalues.merge" ( dict "values" ( list .Values.whiteboard.podLabels .Values.commonLabels $versionLabel ) "context" . ) }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 6 }}
-      app.kubernetes.io/part-of: nextcloud-aio-nextcloud
+      app.kubernetes.io/part-of: nextcloud-aio-whiteboard
       app.kubernetes.io/component: server
   template:
     metadata:
@@ -25,8 +25,8 @@ spec:
         {{- include "common.tplvalues.render" (dict "value" .Values.whiteboard.podAnnotations "context" $) | nindent 8 }}
         {{- end }}
       labels: {{- include "common.labels.standard" ( dict "customLabels" $podLabels "context" $ ) | nindent 8 }}
-        app.kubernetes.io/part-of: nextcloud-aio
-        app.kubernetes.io/component: whiteboard
+        app.kubernetes.io/part-of: nextcloud-aio-whiteboard
+        app.kubernetes.io/component: server
     spec:
       {{- if .Values.affinity }}
       affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" $) | nindent 8 }}
