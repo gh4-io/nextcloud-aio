@@ -9,7 +9,7 @@ metadata:
   {{- if .Values.commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
-  name: {{ include "nextcloud-aio.nextcloud.fullname" . }}
+  name: {{ include "nextcloud-aio.whiteboard.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
 spec:
   replicas: {{ .Values.whiteboard.replicaCount }}
