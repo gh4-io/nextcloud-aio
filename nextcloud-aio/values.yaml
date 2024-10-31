@@ -680,7 +680,7 @@ whiteboard:
 
   image:
     registry: ""
-    repository: nextcloud/aio-clamav
+    repository: nextcloud/aio-whiteboard
     tag: ""
     digest: ""
     pullPolicy: IfNotPresent

@@ -55,7 +55,7 @@ spec:
             - name: CLAMD_STARTUP_TIMEOUT
               value: "90"
             - name: MAX_SIZE
-              value: "{{ .Values.web.maxSize }}"
+              value: "{{ .Values.nextcloud.phpLimits.upload }}"
             - name: TZ
               value: "{{ include "nextcloud-aio.timezone" . }}"
           image: {{ template "nextcloud-aio.clamav.image" . }}
