@@ -54,6 +54,8 @@ spec:
         - env:
             - name: CLAMD_STARTUP_TIMEOUT
               value: "90"
+            - name: MAX_SIZE
+              value: "{{ .Values.web.maxSize }}"
             - name: TZ
               value: "{{ include "nextcloud-aio.timezone" . }}"
           image: {{ template "nextcloud-aio.clamav.image" . }}
