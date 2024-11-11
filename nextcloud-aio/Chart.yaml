@@ -1,14 +1,14 @@
 name: nextcloud-aio
 description: A generated Helm Chart for Nextcloud AIO
-version: 0.0.43
+version: 0.0.44
 annotations:
   category: Infrastructure
   licenses: Apache-2.0
-  nextcloudHub: "6"
+  nextcloudHub: "8"
   nextcloudVersion: "v27.1.5"
-  nextcloudaioVersion: "v9.7.0"
-  nextcloudaioTag: "20240925_080419"
-appVersion: v7.9.1
+  nextcloudaioVersion: "v9.8.0"
+  nextcloudaioTag: "20241106_101604"
+appVersion: v9.8.0
 apiVersion: v2
 keywords:
   - latest

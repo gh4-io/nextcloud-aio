@@ -15,7 +15,7 @@ global:
   ## imagePullSecrets:
   ##   - myRegistryKeySecretName
   ##
-  imageTag: ""
+  imageTag: "20241106_101604"
   imageDigest: ""
   imagePullSecrets: []
   storageClass: ""
